@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function setupEventListeners() {
     document.getElementById('templateSelect').addEventListener('change', handleTemplateSelect);
     document.getElementById('previewTemplateBtn').addEventListener('click', handlePreviewTemplate);
+    document.getElementById('downloadTemplateBtn').addEventListener('click', handleDownloadTemplate);
     document.getElementById('scrapeBtn').addEventListener('click', handleScrape);
     document.getElementById('numVariants').addEventListener('input', (e) => {
         document.getElementById('numVariantsValue').textContent = e.target.value;
@@ -87,16 +88,16 @@ async function loadModels() {
 // Handle template selection
 async function handleTemplateSelect() {
     const templateId = document.getElementById('templateSelect').value;
-    const previewBtn = document.getElementById('previewTemplateBtn');
+    const templateActions = document.getElementById('templateActions');
     
     if (!templateId) {
-        previewBtn.style.display = 'none';
+        templateActions.style.display = 'none';
         document.getElementById('settingsSection').style.display = 'none';
         return;
     }
 
     currentTemplateId = templateId;
-    previewBtn.style.display = 'inline-block';
+    templateActions.style.display = 'flex';
     document.getElementById('settingsSection').style.display = 'block';
 }
 
@@ -121,6 +122,33 @@ async function handlePreviewTemplate() {
     } catch (error) {
         console.error('Error loading template preview:', error);
         previewFrame.srcdoc = '<html><body><p style="color: red;">Error loading preview</p></body></html>';
+    }
+}
+
+// Handle template download
+async function handleDownloadTemplate() {
+    if (!currentTemplateId) return;
+
+    const downloadBtn = document.getElementById('downloadTemplateBtn');
+    const originalText = downloadBtn.textContent;
+    
+    try {
+        downloadBtn.textContent = 'Preparing Download...';
+        downloadBtn.disabled = true;
+
+        // Trigger download
+        window.location.href = `/api/templates/${currentTemplateId}/download`;
+        
+        // Reset button after a short delay
+        setTimeout(() => {
+            downloadBtn.textContent = originalText;
+            downloadBtn.disabled = false;
+        }, 2000);
+    } catch (error) {
+        console.error('Error downloading template:', error);
+        alert('Error downloading template: ' + error.message);
+        downloadBtn.textContent = originalText;
+        downloadBtn.disabled = false;
     }
 }
 

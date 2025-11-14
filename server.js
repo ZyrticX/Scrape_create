@@ -72,6 +72,37 @@ app.get('/api/templates/:id', async (req, res) => {
     }
 });
 
+// Download template as ZIP
+app.get('/api/templates/:id/download', async (req, res) => {
+    try {
+        const template = await getTemplate(req.params.id);
+        if (!template) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+
+        const zipPath = path.join(__dirname, 'templates', `${req.params.id}.zip`);
+        const metadata = {
+            templateId: req.params.id,
+            title: template.title,
+            url: template.url,
+            createdAt: template.createdAt || new Date().toISOString()
+        };
+        
+        // Use the original URL as baseUrl for resource downloads
+        const baseUrl = template.url || null;
+        await createVariantZip(template.originalHtml, zipPath, metadata, baseUrl);
+
+        res.download(zipPath, `template-${req.params.id}.zip`, (err) => {
+            if (err) {
+                console.error('Download error:', err);
+            }
+        });
+    } catch (error) {
+        console.error('Template ZIP creation error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Scrape a new URL and save as template
 app.post('/api/scrape', async (req, res) => {
     try {
