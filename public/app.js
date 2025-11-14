@@ -4,13 +4,77 @@ let availableImageModels = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    await checkSystemStatus();
     await loadTemplates();
     await loadModels();
     setupEventListeners();
 });
 
+// Check system status
+async function checkSystemStatus() {
+    const statusContent = document.getElementById('statusContent');
+    
+    try {
+        const response = await fetch('/api/health');
+        const health = await response.json();
+        
+        const statusHTML = `
+            <div class="status-item">
+                <div class="status-indicator ${health.server === 'running' ? 'success' : 'error'}"></div>
+                <div class="status-label">Server Status:</div>
+                <div class="status-value">${health.server === 'running' ? '✅ Running' : '❌ Offline'}</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator ${health.apiKey === 'configured' ? 'success' : 'error'}"></div>
+                <div class="status-label">API Key:</div>
+                <div class="status-value">${health.apiKey === 'configured' ? '✅ Configured' : '❌ Missing - Please add OPENROUTER_API_KEY to .env'}</div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator ${health.apiKeyValid ? 'success' : health.apiKey === 'configured' ? 'error' : 'warning'}"></div>
+                <div class="status-label">OpenRouter API:</div>
+                <div class="status-value">
+                    ${health.apiKeyValid ? '✅ Connected & Valid' : 
+                      health.openRouter === 'error' ? '❌ Connection Failed: ' + (health.error || 'Unknown error') :
+                      health.openRouter === 'no-key' ? '⚠️ API Key not configured' :
+                      '❌ Invalid API Key'}
+                </div>
+            </div>
+            
+            <div class="status-item">
+                <div class="status-indicator success"></div>
+                <div class="status-label">Last Check:</div>
+                <div class="status-value">${new Date(health.timestamp).toLocaleString()}</div>
+            </div>
+        `;
+        
+        statusContent.innerHTML = statusHTML;
+        
+        // Update panel color based on overall status
+        const panel = document.getElementById('statusPanel');
+        if (health.apiKeyValid) {
+            panel.style.borderLeftColor = '#28a745';
+        } else if (health.apiKey === 'configured') {
+            panel.style.borderLeftColor = '#dc3545';
+        } else {
+            panel.style.borderLeftColor = '#ffc107';
+        }
+        
+    } catch (error) {
+        statusContent.innerHTML = `
+            <div class="status-item">
+                <div class="status-indicator error"></div>
+                <div class="status-label">Error:</div>
+                <div class="status-value">❌ Failed to check system status: ${error.message}</div>
+            </div>
+        `;
+    }
+}
+
 // Setup event listeners
 function setupEventListeners() {
+    document.getElementById('refreshStatusBtn').addEventListener('click', checkSystemStatus);
     document.getElementById('templateSelect').addEventListener('change', handleTemplateSelect);
     document.getElementById('previewTemplateBtn').addEventListener('click', handlePreviewTemplate);
     document.getElementById('downloadTemplateBtn').addEventListener('click', handleDownloadTemplate);

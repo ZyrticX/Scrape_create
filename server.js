@@ -31,6 +31,45 @@ app.use('/templates', express.static(path.join(__dirname, 'templates')));
 
 // API Routes
 
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+    const health = {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        server: 'running',
+        apiKey: process.env.OPENROUTER_API_KEY ? 'configured' : 'missing',
+        apiKeyValid: false
+    };
+
+    // Test OpenRouter API connection if key is present
+    if (process.env.OPENROUTER_API_KEY) {
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/models', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
+                }
+            });
+            
+            if (response.ok) {
+                health.apiKeyValid = true;
+                health.openRouter = 'connected';
+            } else {
+                health.openRouter = 'error';
+                health.error = `API returned ${response.status}`;
+            }
+        } catch (error) {
+            health.openRouter = 'error';
+            health.error = error.message;
+        }
+    } else {
+        health.openRouter = 'no-key';
+    }
+
+    res.json(health);
+});
+
 // Get available text generation models
 app.get('/api/models/text', async (req, res) => {
     try {

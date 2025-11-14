@@ -13,6 +13,20 @@
             <p style="color: #666; margin-top: 10px;">Generate multiple article variants with different content, same design</p>
         </header>
 
+        <!-- System Status Panel -->
+        <section class="status-panel" id="statusPanel" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
+                <span>🔧 System Status</span>
+                <button id="refreshStatusBtn" class="btn btn-secondary" style="margin-left: auto; padding: 5px 15px; font-size: 14px;">Refresh</button>
+            </h3>
+            <div id="statusContent" style="display: grid; gap: 15px;">
+                <div style="text-align: center; color: #666;">
+                    <div class="spinner"></div>
+                    <p>Checking system status...</p>
+                </div>
+            </div>
+        </section>
+
         <main>
             <!-- Template Selection -->
             <section class="step">
