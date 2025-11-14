@@ -23,9 +23,25 @@
                     <select id="templateSelect">
                         <option value="">Loading templates...</option>
                     </select>
-                    <div style="margin-top: 10px; display: none; gap: 10px;" id="templateActions">
+                    <div style="margin-top: 10px; display: none; flex-wrap: wrap; gap: 10px;" id="templateActions">
                         <button id="previewTemplateBtn" class="btn btn-secondary">Preview Template</button>
-                        <button id="downloadTemplateBtn" class="btn btn-primary">Download Template (ZIP)</button>
+                        <button id="downloadTemplateBtn" class="btn btn-primary">Download ZIP</button>
+                        <button id="viewOriginalBtn" class="btn btn-secondary">View Original HTML</button>
+                        <button id="viewFilesBtn" class="btn btn-secondary">Access Files</button>
+                    </div>
+                    <div id="templateFilesContainer" style="margin-top: 15px; display: none; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+                        <h4 style="margin-top: 0;">Template Files:</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 5px 0;">
+                                <a id="originalHtmlLink" href="#" target="_blank" style="color: #007bff;">📄 original.html</a>
+                            </li>
+                            <li style="margin: 5px 0;">
+                                <a id="templateJsonLink" href="#" target="_blank" style="color: #007bff;">📋 template.json</a>
+                            </li>
+                            <li style="margin: 5px 0;">
+                                <a id="contextJsonLink" href="#" target="_blank" style="color: #007bff;">📋 context.json</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 

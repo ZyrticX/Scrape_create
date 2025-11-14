@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import * as fs from 'fs/promises';
 import { scrapePage } from './src/scraper.js';
 import { analyzeContext } from './src/contextAnalyzer.js';
 import { extractStructure } from './src/structureExtractor.js';
@@ -24,6 +25,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve template files (for browsing/downloading)
+app.use('/templates', express.static(path.join(__dirname, 'templates')));
 
 // API Routes
 
@@ -69,6 +73,46 @@ app.get('/api/templates/:id', async (req, res) => {
         res.json(template);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Get template original HTML for viewing
+app.get('/api/templates/:id/view', async (req, res) => {
+    try {
+        const template = await getTemplate(req.params.id);
+        if (!template) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+        res.setHeader('Content-Type', 'text/html');
+        res.send(template.originalHtml);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get specific template file (template.json, context.json, or original.html)
+app.get('/api/templates/:id/file/:filename', async (req, res) => {
+    try {
+        const { id, filename } = req.params;
+        const allowedFiles = ['template.json', 'context.json', 'original.html'];
+        
+        if (!allowedFiles.includes(filename)) {
+            return res.status(400).json({ error: 'Invalid filename' });
+        }
+
+        const filePath = path.join(__dirname, 'templates', id, filename);
+        
+        // Check if file exists
+        await fs.access(filePath);
+        
+        // Set appropriate content type
+        const contentType = filename.endsWith('.html') ? 'text/html' : 'application/json';
+        res.setHeader('Content-Type', contentType);
+        
+        const content = await fs.readFile(filePath, 'utf-8');
+        res.send(content);
+    } catch (error) {
+        res.status(404).json({ error: 'File not found' });
     }
 });
 

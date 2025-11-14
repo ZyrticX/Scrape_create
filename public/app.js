@@ -14,6 +14,8 @@ function setupEventListeners() {
     document.getElementById('templateSelect').addEventListener('change', handleTemplateSelect);
     document.getElementById('previewTemplateBtn').addEventListener('click', handlePreviewTemplate);
     document.getElementById('downloadTemplateBtn').addEventListener('click', handleDownloadTemplate);
+    document.getElementById('viewOriginalBtn').addEventListener('click', handleViewOriginal);
+    document.getElementById('viewFilesBtn').addEventListener('click', handleViewFiles);
     document.getElementById('scrapeBtn').addEventListener('click', handleScrape);
     document.getElementById('numVariants').addEventListener('input', (e) => {
         document.getElementById('numVariantsValue').textContent = e.target.value;
@@ -89,16 +91,29 @@ async function loadModels() {
 async function handleTemplateSelect() {
     const templateId = document.getElementById('templateSelect').value;
     const templateActions = document.getElementById('templateActions');
+    const filesContainer = document.getElementById('templateFilesContainer');
     
     if (!templateId) {
         templateActions.style.display = 'none';
+        filesContainer.style.display = 'none';
         document.getElementById('settingsSection').style.display = 'none';
         return;
     }
 
     currentTemplateId = templateId;
     templateActions.style.display = 'flex';
+    filesContainer.style.display = 'none'; // Hide until "Access Files" is clicked
     document.getElementById('settingsSection').style.display = 'block';
+    
+    // Update file links
+    updateFileLinks(templateId);
+}
+
+// Update file links for the selected template
+function updateFileLinks(templateId) {
+    document.getElementById('originalHtmlLink').href = `/api/templates/${templateId}/file/original.html`;
+    document.getElementById('templateJsonLink').href = `/api/templates/${templateId}/file/template.json`;
+    document.getElementById('contextJsonLink').href = `/api/templates/${templateId}/file/context.json`;
 }
 
 // Handle template preview
@@ -149,6 +164,23 @@ async function handleDownloadTemplate() {
         alert('Error downloading template: ' + error.message);
         downloadBtn.textContent = originalText;
         downloadBtn.disabled = false;
+    }
+}
+
+// Handle view original HTML
+async function handleViewOriginal() {
+    if (!currentTemplateId) return;
+    
+    window.open(`/api/templates/${currentTemplateId}/view`, '_blank');
+}
+
+// Handle view files
+function handleViewFiles() {
+    const filesContainer = document.getElementById('templateFilesContainer');
+    if (filesContainer.style.display === 'none' || !filesContainer.style.display) {
+        filesContainer.style.display = 'block';
+    } else {
+        filesContainer.style.display = 'none';
     }
 }
 
