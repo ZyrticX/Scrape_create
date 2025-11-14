@@ -52,7 +52,7 @@ Paragraph text...`;
 
     // Generate rewritten article
     const rewrittenMarkdown = await generateText(prompt, systemMessage, { 
-        maxTokens: 4000,
+        maxTokens: 8000, // Increased to handle longer articles
         temperature: 0.8,
         model: textModel // Use specified model
     });

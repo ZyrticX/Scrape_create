@@ -45,7 +45,10 @@ export function extractArticle(html, context) {
     }
 
     if (!$mainContainer || $mainContainer.length === 0) {
+        console.log('  Warning: No main container found, using body');
         $mainContainer = $('body');
+    } else {
+        console.log(`  Found main container: ${$mainContainer.get(0).tagName}`);
     }
 
     // Extract article structure
@@ -61,11 +64,23 @@ export function extractArticle(html, context) {
     }
 
     // Get all headings and paragraphs in order
-    $mainContainer.find('h1, h2, h3, h4, h5, h6, p').each((i, elem) => {
+    // Exclude certain areas (navigation, footer, sidebar, forms)
+    const excludeSelectors = 'nav, footer, .nav, .navigation, .sidebar, form, .form, script, style';
+    
+    $mainContainer.find('h1, h2, h3, h4, h5, h6, p').not(excludeSelectors + ' *').each((i, elem) => {
         const $elem = $(elem);
+        
+        // Skip if element is inside excluded areas
+        if ($elem.closest(excludeSelectors).length > 0) {
+            return;
+        }
+        
         const text = $elem.clone().children().remove().end().text().trim();
         
-        if (text && text.length > 10) {
+        // Accept shorter text for headings, longer for paragraphs
+        const minLength = elem.name.startsWith('h') ? 3 : 10;
+        
+        if (text && text.length >= minLength) {
             const tag = elem.name;
             result.article.content.push(`${getMarkdownPrefix(tag)}${text}`);
             result.article.structure.push({
@@ -77,6 +92,44 @@ export function extractArticle(html, context) {
             });
         }
     });
+
+    // If we found very few elements, try searching the whole body
+    if (result.article.structure.length < 5) {
+        console.log(`  Warning: Only found ${result.article.structure.length} elements in main container, searching entire body...`);
+        
+        // Clear previous results
+        result.article.content = [];
+        result.article.structure = [];
+        
+        // Search entire body but exclude nav, footer, etc.
+        const excludeSelectors = 'nav, footer, .nav, .navigation, .sidebar, form, .form, script, style, header';
+        
+        $('body').find('h1, h2, h3, h4, h5, h6, p').not(excludeSelectors + ' *').each((i, elem) => {
+            const $elem = $(elem);
+            
+            // Skip if element is inside excluded areas
+            if ($elem.closest(excludeSelectors).length > 0) {
+                return;
+            }
+            
+            const text = $elem.clone().children().remove().end().text().trim();
+            const minLength = elem.name.startsWith('h') ? 3 : 10;
+            
+            if (text && text.length >= minLength) {
+                const tag = elem.name;
+                result.article.content.push(`${getMarkdownPrefix(tag)}${text}`);
+                result.article.structure.push({
+                    type: tag,
+                    text: text,
+                    selector: getElementSelector($elem),
+                    classes: $elem.attr('class') || null,
+                    id: $elem.attr('id') || null
+                });
+            }
+        });
+        
+        console.log(`  → Now found ${result.article.structure.length} elements`);
+    }
 
     // Extract comments
     const commentSelectors = [

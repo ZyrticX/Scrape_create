@@ -26,6 +26,12 @@ export async function generateSimpleVariant(templateData, targetLanguage, target
     console.log('Step 1/4: Extracting article content and comments...');
     const extracted = extractArticle(originalHtml, context);
     console.log(`  → Found article with ${extracted.article.structure.length} elements`);
+    console.log(`  → Elements by type:`);
+    const typeCount = {};
+    extracted.article.structure.forEach(s => {
+        typeCount[s.type] = (typeCount[s.type] || 0) + 1;
+    });
+    console.log(`     ${Object.entries(typeCount).map(([k,v]) => `${k}: ${v}`).join(', ')}`);
     console.log(`  → Found ${extracted.comments.length} comments`);
     console.log(`  → Form exists: ${extracted.form.exists}`);
 
