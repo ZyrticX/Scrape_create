@@ -23,8 +23,8 @@ npm --version
 ### אופציה 1: Clone מ-GitHub (מומלץ)
 ```bash
 cd /home/your-username
-git clone https://github.com/ZyrticX/ScrapeAndCreate.git
-cd ScrapeAndCreate
+git clone https://github.com/ZyrticX/Scrape_create.git
+cd Scrape_create
 ```
 
 ### אופציה 2: העלאה ידנית
@@ -150,7 +150,7 @@ After=network.target
 [Service]
 Type=simple
 User=your-username
-WorkingDirectory=/home/your-username/ScrapeAndCreate
+WorkingDirectory=/home/your-username/Scrape_create
 Environment=NODE_ENV=production
 ExecStart=/usr/bin/node server.js
 Restart=on-failure
@@ -310,13 +310,13 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ```bash
 # ודא שהמשתמש שלך הבעלים של הקבצים
-sudo chown -R $USER:$USER /home/your-username/ScrapeAndCreate
+sudo chown -R $USER:$USER /home/your-username/Scrape_create
 
 # הרשאות לתיקיות
-chmod 755 ~/ScrapeAndCreate
-chmod -R 755 ~/ScrapeAndCreate/templates
-chmod -R 755 ~/ScrapeAndCreate/variants
-chmod -R 755 ~/ScrapeAndCreate/output
+chmod 755 ~/Scrape_create
+chmod -R 755 ~/Scrape_create/templates
+chmod -R 755 ~/Scrape_create/variants
+chmod -R 755 ~/Scrape_create/output
 ```
 
 ---
@@ -342,9 +342,9 @@ pm2 restart scrape-and-create
 
 # גיבוי
 tar -czf scrape-backup-$(date +%Y%m%d).tar.gz \
-    ~/ScrapeAndCreate/templates \
-    ~/ScrapeAndCreate/variants \
-    ~/ScrapeAndCreate/.env
+    ~/Scrape_create/templates \
+    ~/Scrape_create/variants \
+    ~/Scrape_create/.env
 ```
 
 ---
