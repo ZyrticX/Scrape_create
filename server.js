@@ -33,31 +33,45 @@ app.use('/templates', express.static(path.join(__dirname, 'templates')));
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    
     const health = {
         status: 'ok',
         timestamp: new Date().toISOString(),
         server: 'running',
-        apiKey: process.env.OPENROUTER_API_KEY ? 'configured' : 'missing',
-        apiKeyValid: false
+        apiKey: apiKey ? 'configured' : 'missing',
+        apiKeyValid: false,
+        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'N/A',
+        envFileLoaded: process.env.OPENROUTER_API_KEY !== undefined
     };
 
     // Test OpenRouter API connection if key is present
-    if (process.env.OPENROUTER_API_KEY) {
+    if (apiKey) {
         try {
-            const response = await fetch('https://openrouter.ai/api/v1/models', {
-                method: 'GET',
+            // Test with actual chat completion (more reliable than just listing models)
+            const testResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
                     'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
-                }
+                    'X-Title': 'Health Check'
+                },
+                body: JSON.stringify({
+                    model: 'openai/gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: 'test' }],
+                    max_tokens: 5
+                })
             });
             
-            if (response.ok) {
+            if (testResponse.ok) {
                 health.apiKeyValid = true;
                 health.openRouter = 'connected';
             } else {
+                const errorData = await testResponse.json().catch(() => ({}));
                 health.openRouter = 'error';
-                health.error = `API returned ${response.status}`;
+                health.error = `API returned ${testResponse.status}: ${JSON.stringify(errorData)}`;
+                health.apiKeyValid = false;
             }
         } catch (error) {
             health.openRouter = 'error';

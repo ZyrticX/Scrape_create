@@ -26,16 +26,26 @@ async function checkSystemStatus() {
             </div>
             
             <div class="status-item">
+                <div class="status-indicator ${health.envFileLoaded ? 'success' : 'error'}"></div>
+                <div class="status-label">.env File:</div>
+                <div class="status-value">${health.envFileLoaded ? '✅ Loaded' : '❌ Not Loaded - Check PM2 configuration'}</div>
+            </div>
+            
+            <div class="status-item">
                 <div class="status-indicator ${health.apiKey === 'configured' ? 'success' : 'error'}"></div>
                 <div class="status-label">API Key:</div>
-                <div class="status-value">${health.apiKey === 'configured' ? '✅ Configured' : '❌ Missing - Please add OPENROUTER_API_KEY to .env'}</div>
+                <div class="status-value">
+                    ${health.apiKey === 'configured' ? 
+                        `✅ Configured (${health.apiKeyPrefix || 'hidden'})` : 
+                        '❌ Missing - Please add OPENROUTER_API_KEY to .env'}
+                </div>
             </div>
             
             <div class="status-item">
                 <div class="status-indicator ${health.apiKeyValid ? 'success' : health.apiKey === 'configured' ? 'error' : 'warning'}"></div>
                 <div class="status-label">OpenRouter API:</div>
                 <div class="status-value">
-                    ${health.apiKeyValid ? '✅ Connected & Valid' : 
+                    ${health.apiKeyValid ? '✅ Connected & Valid (Test successful)' : 
                       health.openRouter === 'error' ? '❌ Connection Failed: ' + (health.error || 'Unknown error') :
                       health.openRouter === 'no-key' ? '⚠️ API Key not configured' :
                       '❌ Invalid API Key'}
