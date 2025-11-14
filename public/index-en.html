@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Variant Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Article Variant Generator</h1>
+            <p style="color: #666; margin-top: 10px;">Generate multiple article variants with different content, same design</p>
+        </header>
+
+        <main>
+            <!-- Template Selection -->
+            <section class="step">
+                <h2>1. Select Template</h2>
+                
+                <div class="form-group">
+                    <label for="templateSelect">Choose Template:</label>
+                    <select id="templateSelect">
+                        <option value="">Loading templates...</option>
+                    </select>
+                    <button id="previewTemplateBtn" class="btn btn-secondary" style="margin-top: 10px; display: none;">Preview Template</button>
+                </div>
+
+                <div id="templatePreviewContainer" style="margin-top: 20px; display: none;">
+                    <h3>Template Preview:</h3>
+                    <iframe id="templatePreviewFrame" style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 5px;"></iframe>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <strong>Or create new template from URL:</strong>
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <input type="url" id="urlInput" placeholder="https://example.com/article" style="flex: 1;">
+                        <button id="scrapeBtn" class="btn btn-primary">Scrape & Save</button>
+                    </div>
+                    <div id="scrapeStatus" class="status"></div>
+                </div>
+            </section>
+
+            <!-- Generation Settings -->
+            <section class="step" id="settingsSection" style="display: none;">
+                <h2>2. Generation Settings</h2>
+
+                <div class="form-group">
+                    <label for="numVariants">Number of Article Variants:</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="numVariants" min="1" max="10" value="1" style="flex: 1;">
+                        <span id="numVariantsValue" style="font-weight: bold; min-width: 30px;">1</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="languageSelect">Article Language:</label>
+                    <select id="languageSelect">
+                        <option value="English">English</option>
+                        <option value="Hebrew">Hebrew</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Arabic">Arabic</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="countrySelect">Target Country:</label>
+                    <select id="countrySelect">
+                        <option value="USA">United States</option>
+                        <option value="Israel">Israel</option>
+                        <option value="South Africa">South Africa</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Spain">Spain</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="textModelSelect">Text Generation Model:</label>
+                    <select id="textModelSelect">
+                        <option value="">Loading models...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="generateImagesCheck">
+                        Generate Images (slower, optional)
+                    </label>
+                </div>
+
+                <div class="form-group" id="imageModelGroup" style="display: none;">
+                    <label for="imageModelSelect">Image Generation Model:</label>
+                    <select id="imageModelSelect">
+                        <option value="">Loading models...</option>
+                    </select>
+                </div>
+
+                <button id="generateBtn" class="btn btn-success" style="margin-top: 20px; font-size: 18px; padding: 15px 40px;">
+                    Generate Variants
+                </button>
+                <div id="generateStatus" class="status"></div>
+                <div id="progressContainer" style="display: none; margin-top: 20px;">
+                    <div class="progress-bar">
+                        <div id="progressBar" class="progress-fill"></div>
+                    </div>
+                    <p id="progressText" style="text-align: center; margin-top: 10px;"></p>
+                </div>
+            </section>
+
+            <!-- Results -->
+            <section class="step" id="resultsSection" style="display: none;">
+                <h2>3. Generated Variants</h2>
+                <div id="variantsList"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app-en.js"></script>
+</body>
+</html>
+
+
+
+

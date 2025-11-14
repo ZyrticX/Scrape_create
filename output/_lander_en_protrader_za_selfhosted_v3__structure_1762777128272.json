@@ -1,0 +1,1377 @@
+{
+  "metadata": {
+    "url": "http://134.122.99.27/lander/en/protrader-za-selfhosted-v3/",
+    "title": "This new trading app is causing a stir: Belgians are now earning thousands of euros per week!",
+    "analyzedAt": "2025-11-10T12:18:48.419Z"
+  },
+  "structure": {
+    "sections": [
+      {
+        "tag": "section",
+        "id": null,
+        "classes": "recommend-wrap",
+        "textPreview": "Risk disclosure\n\n  \n    Investing and trading involve risks, including the risk of total loss of",
+        "childrenCount": 2
+      },
+      {
+        "tag": "footer",
+        "id": null,
+        "classes": "main-footer",
+        "textPreview": "",
+        "childrenCount": 1
+      }
+    ],
+    "navigation": [],
+    "forms": [
+      {
+        "id": "myform1",
+        "action": "/send_order_pinc_it_bnt_cc_f",
+        "method": "POST",
+        "inputs": [
+          {
+            "type": "text",
+            "name": "first_name",
+            "id": "first_name",
+            "placeholder": "First name"
+          },
+          {
+            "type": "text",
+            "name": "last_name",
+            "id": "last_name",
+            "placeholder": "Last name"
+          },
+          {
+            "type": "email",
+            "name": "email",
+            "id": "email",
+            "placeholder": "Email"
+          },
+          {
+            "type": "text",
+            "name": null,
+            "id": null,
+            "placeholder": "Search"
+          },
+          {
+            "type": "text",
+            "name": "phone",
+            "id": "phone",
+            "placeholder": "050-234-5678"
+          },
+          {
+            "type": "hidden",
+            "name": "full_phone",
+            "id": null,
+            "placeholder": null
+          },
+          {
+            "type": "hidden",
+            "name": "country_code",
+            "id": null,
+            "placeholder": null
+          },
+          {
+            "type": "submit",
+            "name": null,
+            "id": null,
+            "placeholder": null
+          }
+        ]
+      }
+    ],
+    "images": [
+      {
+        "src": "images/pic12.png",
+        "alt": null,
+        "class": "full-width-image",
+        "id": null
+      },
+      {
+        "src": "images/aitrader.jpg",
+        "alt": null,
+        "class": "hero-deposit-img",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-up.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/thumbs-down.png",
+        "alt": null,
+        "class": "image-4",
+        "id": null
+      },
+      {
+        "src": "images/pt_logo.png",
+        "alt": "logo",
+        "class": "m-auto mb-3 mb-md-0",
+        "id": null
+      }
+    ],
+    "links": [
+      {
+        "text": "Privacy Policy",
+        "href": "/lander/en/protrader-za-selfhosted-v3/privacy-policy.php?base_path=http%3A%2F%2F134.122.99.27%2Flander%2Fen%2Fprotrader-za-selfhosted-v3%2F",
+        "isExternal": false,
+        "class": "mb-3 mb-md-0 mx-3 text-white hover:text-gray-50"
+      },
+      {
+        "text": "Terms and Conditions",
+        "href": "/lander/en/protrader-za-selfhosted-v3/terms-and-conditions.php?base_path=http%3A%2F%2F134.122.99.27%2Flander%2Fen%2Fprotrader-za-selfhosted-v3%2F",
+        "isExternal": false,
+        "class": "mb-3 mb-md-0 mx-3 text-white hover:text-gray-50"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "/lander/en/protrader-za-selfhosted-v3/cookie-policy.php?base_path=http%3A%2F%2F134.122.99.27%2Flander%2Fen%2Fprotrader-za-selfhosted-v3%2F",
+        "isExternal": false,
+        "class": "mb-3 mb-md-0 mx-3 text-white hover:text-gray-50"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/lander/en/protrader-za-selfhosted-v3/contact-us.php?base_path=http%3A%2F%2F134.122.99.27%2Flander%2Fen%2Fprotrader-za-selfhosted-v3%2F",
+        "isExternal": false,
+        "class": "mb-3 mb-md-0 mx-3 text-white hover:text-gray-50"
+      },
+      {
+        "text": "Legal Information",
+        "href": "/lander/en/protrader-za-selfhosted-v3/legal-information.php?base_path=http%3A%2F%2F134.122.99.27%2Flander%2Fen%2Fprotrader-za-selfhosted-v3%2F",
+        "isExternal": false,
+        "class": "mb-3 mb-md-0 mx-3 text-white hover:text-gray-50"
+      }
+    ],
+    "scripts": [
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 1301
+      },
+      {
+        "src": "js/intlTelInput.min.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": "js/utils.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": "js/jquery-3.7.1.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 110
+      },
+      {
+        "src": "js/email-decode.min.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 1255
+      },
+      {
+        "src": "https://code.jquery.com/jquery-3.5.1.min.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": "https://cdn.jsdelivr.net/npm/intl-tel-input@20.0.5/build/js/intlTelInput.min.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 679
+      },
+      {
+        "src": "https://cdn.jsdelivr.net/npm/sweetalert2@11.14.1/dist/sweetalert2.all.min.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      },
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 2712
+      },
+      {
+        "src": null,
+        "type": "text/javascript",
+        "isInline": true,
+        "length": 331
+      },
+      {
+        "src": "https://cdn.jsdelivr.net/npm/intl-tel-input@20.0.5/build/js/utils.js",
+        "type": "text/javascript",
+        "isInline": false,
+        "length": 0
+      }
+    ],
+    "stylesheets": [
+      {
+        "href": "https://cdn.jsdelivr.net/npm/intl-tel-input@20.0.5/build/css/intlTelInput.css",
+        "media": "all"
+      },
+      {
+        "href": "css/form.css",
+        "media": "all"
+      },
+      {
+        "href": "css/intlTelInput.min.css",
+        "media": "all"
+      },
+      {
+        "href": "css/bootstrap.min.css",
+        "media": "all"
+      },
+      {
+        "href": "css/style3.css",
+        "media": "all"
+      },
+      {
+        "href": "css/main.bc56bb3b5f1531edcb1d.css",
+        "media": "all"
+      },
+      {
+        "href": "https://cdn.jsdelivr.net/npm/sweetalert2@11.14.1/dist/sweetalert2.min.css",
+        "media": "all"
+      }
+    ]
+  },
+  "statistics": {
+    "totalElements": 1707,
+    "totalText": 54577,
+    "totalImages": 39,
+    "totalLinks": 5,
+    "totalForms": 1
+  },
+  "hierarchy": {
+    "tag": "body",
+    "id": null,
+    "classes": "landing-template-default single single-landing en generic landing-ge_business_en",
+    "text": null,
+    "children": [
+      {
+        "tag": "div",
+        "id": null,
+        "classes": "advert-label-edit",
+        "text": "Advertorial",
+        "children": []
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classes": "navbar-wrapper",
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "div",
+        "id": null,
+        "classes": "page-wrapper",
+        "text": null,
+        "children": [
+          {
+            "tag": "div",
+            "id": null,
+            "classes": "grid",
+            "text": null,
+            "children": [
+              {
+                "tag": "div",
+                "id": "w-node-_7d2506dd-61e3-9f9a-fbfd-281f0440bd7f-9ec1ba67",
+                "classes": "left-side-div",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "a",
+                    "id": null,
+                    "classes": "scrolll",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "news-header",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "span",
+                        "id": null,
+                        "classes": "news-time",
+                        "text": "Updated at 3:00 PM – Johannesburg",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "a",
+                    "id": null,
+                    "classes": "scrolll",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "From Global AI Buzz to Local Opportunity",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "As technologies like ChatGPT and Midjourney make g",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "Now, one of those platforms, , has officially laun",
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "How ProTrader Works",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "was created to make the process of earning online ",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "Instead of users manually analysing charts or tren",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "The result is a system designed to do the heavy an",
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "Why South Africans Are Paying Attention",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "1.  –  doesn’t require prior experience or financi",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "2.  – With a simple, clear interface, anyone can g",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "3.  – The system refines its performance the more ",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "These features have attracted growing interest amo",
+                    "children": []
+                  },
+                  {
+                    "tag": "br",
+                    "id": null,
+                    "classes": null,
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "Inside the Experience",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "During a month-long evaluation, our editors explor",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "What stood out most was how consistent the system ",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "hero-deposit",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "a",
+                        "id": null,
+                        "classes": null,
+                        "text": null,
+                        "children": []
+                      },
+                      {
+                        "tag": "a",
+                        "id": null,
+                        "classes": null,
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "br",
+                    "id": null,
+                    "classes": null,
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "Limited Access for Now",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "The developers describe this stage as a public bet",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "New registrations may close once participation tar",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "For now, South Africans can still apply for early ",
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "The Takeaway",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "Artificial intelligence is no longer a future conc",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "could be one of the first AI tools to make that ch",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "Whether it becomes a lasting innovation or just an",
+                    "children": []
+                  },
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "heading-3",
+                    "text": "Curious to See How It Works?",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "blue-line",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "If you’d like to see how  performs in real time, y",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": "There’s no obligation, and your details remain ful",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "light-dark-paragraph",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": "custom-regbox",
+                    "classes": null,
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "style",
+                        "id": null,
+                        "classes": null,
+                        "text": "*,\n            :after,\n            :before {\n     ",
+                        "children": []
+                      },
+                      {
+                        "tag": "style",
+                        "id": null,
+                        "classes": null,
+                        "text": ".intgrtn-loader-holder {\n              position: a",
+                        "children": []
+                      },
+                      {
+                        "tag": "div",
+                        "id": "req-form-section",
+                        "classes": "main-form",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "h3",
+                    "id": null,
+                    "classes": "heading-4",
+                    "text": "Comments (17):",
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-4",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "w-layout-grid grid-2",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "section",
+                "id": null,
+                "classes": "recommend-wrap",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "h2",
+                    "id": null,
+                    "classes": "recommend-title",
+                    "text": "Risk disclosure",
+                    "children": []
+                  },
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": "recommend-note",
+                    "text": "Investing and trading involve risks, including the",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "id": "w-node-c99f29b9-9960-ea31-3eed-a1b91b8cd3ac-9ec1ba67",
+                "classes": "right-side-div",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "a",
+                    "id": null,
+                    "classes": "scrolll",
+                    "text": null,
+                    "children": []
+                  },
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "div-block-5",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "a",
+                        "id": null,
+                        "classes": "scrolll",
+                        "text": null,
+                        "children": []
+                      },
+                      {
+                        "tag": "a",
+                        "id": null,
+                        "classes": "scrolll",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "footer",
+        "id": null,
+        "classes": "main-footer",
+        "text": null,
+        "children": [
+          {
+            "tag": "div",
+            "id": null,
+            "classes": "container",
+            "text": null,
+            "children": [
+              {
+                "tag": "div",
+                "id": null,
+                "classes": "footer-logo",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "d-flex flex-column flex-md-row mb-1 mb-md-5 justify-content-md-between",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "mb-3 mb-md-0 footer-st-logo",
+                        "text": null,
+                        "children": []
+                      },
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "d-flex flex-column nav-row flex-md-row align-items-center justify-content-between",
+                        "text": "-\n           -\n           -\n           -",
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "id": null,
+                "classes": "footer-content",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "div",
+                    "id": null,
+                    "classes": "footer-sections",
+                    "text": null,
+                    "children": [
+                      {
+                        "tag": "div",
+                        "id": null,
+                        "classes": "footer-section",
+                        "text": null,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "div",
+                "id": null,
+                "classes": "footer-bottom",
+                "text": null,
+                "children": [
+                  {
+                    "tag": "p",
+                    "id": null,
+                    "classes": null,
+                    "text": "©2025 All Rights Reserved.",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tag": "style",
+        "id": null,
+        "classes": null,
+        "text": "a {\n      cursor: pointer;\n    }\n\n    .popup-headi",
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": "document.addEventListener(\"DOMContentLoaded\", () =",
+        "children": []
+      },
+      {
+        "tag": "style",
+        "id": null,
+        "classes": null,
+        "text": "html {\n      scroll-behavior: smooth;\n    }\n\n    .",
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": "const inputs = document.querySelectorAll(\".phone\")",
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "link",
+        "id": null,
+        "classes": null,
+        "text": null,
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": "$(\"form\").submit(function(e) {\n      console.log(\"",
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": null,
+        "text": "const scrollPoint = document.getElementById('myfor",
+        "children": []
+      },
+      {
+        "tag": "script",
+        "id": null,
+        "classes": "iti-load-utils",
+        "text": null,
+        "children": []
+      }
+    ]
+  }
+}

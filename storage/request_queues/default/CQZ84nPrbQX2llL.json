@@ -1,0 +1,9 @@
+{
+	"id": "CQZ84nPrbQX2llL",
+	"json": "{\"id\":\"CQZ84nPrbQX2llL\",\"url\":\"http://134.122.99.27/lander/en/protrader-za-selfhosted-v3/\",\"loadedUrl\":\"http://134.122.99.27/lander/en/protrader-za-selfhosted-v3/\",\"uniqueKey\":\"http://134.122.99.27/lander/en/protrader-za-selfhosted-v3\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-11-10T19:52:44.381Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "http://134.122.99.27/lander/en/protrader-za-selfhosted-v3",
+	"url": "http://134.122.99.27/lander/en/protrader-za-selfhosted-v3/"
+}

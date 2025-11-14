@@ -1,0 +1,33 @@
+{
+  "url": "http://134.122.99.27/lander/en/protrader-za-selfhosted-v3/",
+  "title": "This new trading app is causing a stir: Belgians are now earning thousands of euros per week!",
+  "analyzedAt": "2025-11-10T19:52:44.666Z",
+  "topic": "trading",
+  "purpose": "conversion",
+  "writingStyle": "marketing",
+  "tone": "urgent",
+  "targetAudience": "beginners",
+  "targetCountry": null,
+  "targetLanguage": "English",
+  "keyMessages": [
+    "South Africans Discover a New AI Platform Promising to Simplify Online Income",
+    "From Global AI Buzz to Local Opportunity",
+    "How ProTrader Works",
+    "Why South Africans Are Paying Attention",
+    "Inside the Experience"
+  ],
+  "contentType": "landing page",
+  "callToAction": "Get Free Access",
+  "sections": {
+    "totalTexts": 304,
+    "bySection": {
+      "header": 1,
+      "main": 291,
+      "footer": 5,
+      "forms": 7,
+      "sidebar": 0,
+      "other": 0
+    },
+    "byType": {}
+  }
+}

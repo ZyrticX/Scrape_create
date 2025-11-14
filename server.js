@@ -1,0 +1,228 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { scrapePage } from './src/scraper.js';
+import { analyzeContext } from './src/contextAnalyzer.js';
+import { extractStructure } from './src/structureExtractor.js';
+import { extractTextsBySections } from './src/textExtractor.js';
+import { saveTemplate, getAllTemplates, getTemplate } from './src/templateManager.js';
+import { generateVariant } from './src/variantGenerator.js';
+import { generateSimpleVariant } from './src/simpleVariantGenerator.js';
+import { saveVariant, listVariants, getVariant } from './src/variantManager.js';
+import { createVariantZip } from './src/zipGenerator.js';
+import { processHTML } from './src/htmlProcessor.js';
+import { getTextModels, getImageModels } from './src/openRouterModels.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API Routes
+
+// Get available text generation models
+app.get('/api/models/text', async (req, res) => {
+    try {
+        const models = await getTextModels();
+        res.json(models);
+    } catch (error) {
+        console.error('Error fetching text models:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get available image generation models
+app.get('/api/models/image', async (req, res) => {
+    try {
+        const models = await getImageModels();
+        res.json(models);
+    } catch (error) {
+        console.error('Error fetching image models:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get all templates
+app.get('/api/templates', async (req, res) => {
+    try {
+        const templates = await getAllTemplates();
+        res.json(templates);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get a specific template
+app.get('/api/templates/:id', async (req, res) => {
+    try {
+        const template = await getTemplate(req.params.id);
+        if (!template) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+        res.json(template);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Scrape a new URL and save as template
+app.post('/api/scrape', async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        // Scrape the page
+        const scrapedData = await scrapePage(url);
+        
+        // Analyze context
+        const context = analyzeContext(scrapedData.html, scrapedData.url, scrapedData.title);
+        
+        // Extract structure
+        const template = extractStructure(scrapedData.html, scrapedData.url, scrapedData.title);
+        
+        // Extract texts by sections
+        const extractedTexts = extractTextsBySections(scrapedData.html, context);
+        
+        // Process HTML
+        const processedHTML = processHTML(scrapedData.html, scrapedData.url);
+        
+        // Save template
+        const templateId = await saveTemplate({
+            url: scrapedData.url,
+            title: scrapedData.title,
+            template,
+            context: {
+                ...context,
+                sections: extractedTexts.summary,
+                availableSections: Object.keys(extractedTexts.sections).filter(
+                    key => extractedTexts.sections[key].length > 0
+                )
+            },
+            originalHtml: processedHTML
+        });
+
+        res.json({
+            success: true,
+            templateId,
+            context,
+            sections: Object.keys(extractedTexts.sections).filter(
+                key => extractedTexts.sections[key].length > 0
+            )
+        });
+    } catch (error) {
+        console.error('Scraping error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Generate a variant (simple approach)
+app.post('/api/generate-variant', async (req, res) => {
+    try {
+        const { templateId, language, country, textModel, imageModel, generateImages } = req.body;
+        
+        if (!templateId) {
+            return res.status(400).json({ error: 'templateId is required' });
+        }
+
+        // Get template
+        const templateData = await getTemplate(templateId);
+        if (!templateData) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+
+        // Generate variant using simple approach (2 API calls only)
+        const variant = await generateSimpleVariant(
+            templateData,
+            language || 'English',
+            country || 'USA',
+            {
+                textModel: textModel || null,
+                imageModel: imageModel || null,
+                generateImages: generateImages || false
+            }
+        );
+
+        // Save variant
+        const variantId = await saveVariant(variant);
+
+        res.json({
+            success: true,
+            variantId,
+            metadata: variant.metadata
+        });
+    } catch (error) {
+        console.error('Variant generation error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get variant HTML
+app.get('/api/variants/:id', async (req, res) => {
+    try {
+        const variant = await getVariant(req.params.id);
+        if (!variant) {
+            return res.status(404).json({ error: 'Variant not found' });
+        }
+        res.json(variant);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Download variant as ZIP
+app.get('/api/variants/:id/download', async (req, res) => {
+    try {
+        const variant = await getVariant(req.params.id);
+        if (!variant) {
+            return res.status(404).json({ error: 'Variant not found' });
+        }
+
+        const zipPath = path.join(__dirname, 'variants', `${req.params.id}.zip`);
+        // Use baseUrl from metadata if available
+        const baseUrl = variant.metadata.originalUrl || null;
+        await createVariantZip(variant.html, zipPath, variant.metadata, baseUrl);
+
+        res.download(zipPath, `variant-${req.params.id}.zip`, (err) => {
+            if (err) {
+                console.error('Download error:', err);
+            }
+        });
+    } catch (error) {
+        console.error('ZIP creation error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// List all variants
+app.get('/api/variants', async (req, res) => {
+    try {
+        const variants = await listVariants();
+        res.json(variants);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Serve frontend
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index-en.html'));
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index-en.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+
+

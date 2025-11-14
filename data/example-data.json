@@ -1,0 +1,7 @@
+{
+  "pageTitle": "Example Page - Generated from Template",
+  "mainHeadline": "Welcome to Your New Page",
+  "introText": "This is an example of how to use the template system to generate new pages with different content.",
+  "content": "Replace this with your actual content. The system will automatically match placeholders in the template with values from this JSON file."
+}
+

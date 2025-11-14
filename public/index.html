@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת יצירת ורסיות עמודים</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>מערכת יצירת ורסיות עמודים עם AI</h1>
+        </header>
+
+        <main>
+            <!-- Step 1: Template Selection -->
+            <section id="step1" class="step active">
+                <h2>שלב 1: בחירת Template</h2>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="templateSource" value="existing" checked>
+                        בחר Template קיים
+                    </label>
+                    <label>
+                        <input type="radio" name="templateSource" value="new">
+                        צור Template חדש מ-URL
+                    </label>
+                </div>
+
+                <div id="existingTemplate" class="template-section">
+                    <label for="templateSelect">בחר Template:</label>
+                    <select id="templateSelect">
+                        <option value="">טוען templates...</option>
+                    </select>
+                    <button id="previewTemplateBtn" class="btn btn-primary" style="margin-top: 10px; display: none;">תצוגה מקדימה</button>
+                    <div id="templatePreviewContainer" style="margin-top: 20px; display: none;">
+                        <h3>תצוגה מקדימה של Template:</h3>
+                        <iframe id="templatePreviewFrame" style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 5px;"></iframe>
+                    </div>
+                </div>
+
+                <div id="newTemplate" class="template-section" style="display: none;">
+                    <label for="urlInput">הזן URL:</label>
+                    <input type="url" id="urlInput" placeholder="https://example.com">
+                    <button id="scrapeBtn" class="btn btn-primary">סקרף ושמור Template</button>
+                    <div id="scrapeStatus" class="status"></div>
+                </div>
+            </section>
+
+            <!-- Step 2: Section Selection -->
+            <section id="step2" class="step" style="display: none;">
+                <h2>שלב 2: בחירת Sections לשנות</h2>
+                <p style="margin-bottom: 15px; color: #666;">בחר את ה-sections שברצונך לשנות:</p>
+                <div id="sectionsList"></div>
+                <div id="step2Status" class="status" style="display: none;"></div>
+                <div style="margin-top: 20px;">
+                    <button id="continueToStep3Btn" class="btn btn-primary">המשך לשלב הבא</button>
+                </div>
+            </section>
+
+            <!-- Step 3: Language/Country Selection -->
+            <section id="step3" class="step" style="display: none;">
+                <h2>שלב 3: בחירת שפה ומדינה</h2>
+                
+                <div class="form-group">
+                    <label for="languageSelect">שפה:</label>
+                    <select id="languageSelect">
+                        <option value="English">אנגלית</option>
+                        <option value="Hebrew">עברית</option>
+                        <option value="Spanish">ספרדית</option>
+                        <option value="French">צרפתית</option>
+                        <option value="German">גרמנית</option>
+                        <option value="Arabic">ערבית</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="countrySelect">מדינה:</label>
+                    <select id="countrySelect">
+                        <option value="">לא נבחר</option>
+                        <option value="Israel">ישראל</option>
+                        <option value="United States">ארצות הברית</option>
+                        <option value="United Kingdom">בריטניה</option>
+                        <option value="South Africa">דרום אפריקה</option>
+                        <option value="Germany">גרמניה</option>
+                        <option value="France">צרפת</option>
+                    </select>
+                </div>
+
+                <button id="generateBtn" class="btn btn-primary">צור ורסיה</button>
+                <div id="generateStatus" class="status"></div>
+            </section>
+
+            <!-- Step 4: Preview and Download -->
+            <section id="step4" class="step" style="display: none;">
+                <h2>שלב 4: תצוגה מקדימה והורדה</h2>
+                <div id="previewContainer">
+                    <iframe id="previewFrame" style="width: 100%; height: 600px; border: 1px solid #ccc;"></iframe>
+                </div>
+                <button id="downloadBtn" class="btn btn-success">הורד ZIP</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+

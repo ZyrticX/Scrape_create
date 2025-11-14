@@ -1,0 +1,31 @@
+{
+  "name": "apify-page-scraper",
+  "version": "1.0.0",
+  "description": "System for scraping dynamic pages and creating templates for generating identical pages with different content",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "scrape": "node src/main.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "apify",
+    "scraping",
+    "playwright",
+    "template",
+    "crawlee"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "apify": "^3.0.0",
+    "crawlee": "^3.0.0",
+    "playwright": "^1.40.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "archiver": "^6.0.1"
+  }
+}
+
