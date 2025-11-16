@@ -14,13 +14,13 @@
         </header>
 
         <!-- System Status Panel -->
-        <section class="status-panel" id="statusPanel" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+        <section class="status-panel" id="statusPanel">
             <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
                 <span>🔧 System Status</span>
-                <button id="refreshStatusBtn" class="btn btn-secondary" style="margin-left: auto; padding: 5px 15px; font-size: 14px;">Refresh</button>
+                <button id="refreshStatusBtn" class="btn btn-secondary" style="margin-left: auto; padding: 5px 15px; font-size: 14px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">Refresh</button>
             </h3>
             <div id="statusContent" style="display: grid; gap: 15px;">
-                <div style="text-align: center; color: #666;">
+                <div style="text-align: center; color: rgba(255,255,255,0.9);">
                     <div class="spinner"></div>
                     <p>Checking system status...</p>
                 </div>
