@@ -10,6 +10,7 @@ export class SmartContentReplacer {
     constructor(config = {}) {
         this.model = config.model || 'anthropic/claude-sonnet-4';
         this.maxTokens = config.maxTokens || 8000;
+        this.chunkSize = config.chunkSize || 200; // Process in chunks of 200 items
     }
 
     /**
@@ -127,6 +128,104 @@ IMPORTANT:
 - Start with [ and end with ]
 
 BEGIN:`;
+    }
+
+    /**
+     * Process single batch (for small content)
+     */
+    async processSingleBatch(textMap, targetConfig) {
+        console.log('\nStep 2: Building localization prompt...');
+        const prompt = this.buildPrompt(textMap, targetConfig);
+        
+        const promptSize = (Buffer.byteLength(prompt, 'utf8') / 1024).toFixed(1);
+        console.log(`✅ Prompt size: ${promptSize}KB`);
+
+        console.log(`\nStep 3: Sending to ${this.model}...`);
+        console.log('⏳ This should take 10-30 seconds...');
+
+        const aiStartTime = Date.now();
+        const response = await generateText(
+            prompt,
+            'You are a localization expert. Return ONLY a JSON array with no additional text.',
+            {
+                model: this.model,
+                maxTokens: this.maxTokens * 2, // Double for safety
+                temperature: 0.3
+            }
+        );
+        const aiDuration = ((Date.now() - aiStartTime) / 1000).toFixed(1);
+        console.log(`✅ AI responded in ${aiDuration}s`);
+        console.log(`Response length: ${response.length} characters`);
+
+        console.log('\nStep 4: Parsing AI response...');
+        return this.parseResponse(response);
+    }
+
+    /**
+     * Process in chunks (for large content)
+     */
+    async processInChunks(textMap, targetConfig) {
+        // Convert Map to array
+        const allItems = Array.from(textMap.entries());
+        
+        // Split into chunks
+        const chunks = [];
+        for (let i = 0; i < allItems.length; i += this.chunkSize) {
+            chunks.push(allItems.slice(i, i + this.chunkSize));
+        }
+
+        console.log(`\n📦 Processing ${chunks.length} chunks of ~${this.chunkSize} items each\n`);
+
+        const allLocalizedItems = new Map();
+        let totalDuration = 0;
+
+        for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
+            console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            console.log(`📦 Chunk ${i + 1}/${chunks.length} (${chunk.length} items)`);
+            console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+
+            // Convert chunk back to Map
+            const chunkMap = new Map(chunk);
+            const prompt = this.buildPrompt(chunkMap, targetConfig);
+
+            console.log(`🤖 Sending to ${this.model}...`);
+            const startTime = Date.now();
+
+            const response = await generateText(
+                prompt,
+                'You are a localization expert. Return ONLY a JSON array with no additional text.',
+                {
+                    model: this.model,
+                    maxTokens: this.maxTokens,
+                    temperature: 0.3
+                }
+            );
+
+            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+            totalDuration += parseFloat(duration);
+            console.log(`✅ Responded in ${duration}s`);
+
+            const localizedChunk = this.parseResponse(response);
+            
+            // Merge into final map
+            localizedChunk.forEach((value, key) => {
+                allLocalizedItems.set(key, value);
+            });
+
+            console.log(`✅ Chunk ${i + 1} complete: ${localizedChunk.size} items localized`);
+
+            // Wait between chunks to avoid rate limiting
+            if (i < chunks.length - 1) {
+                console.log('⏳ Waiting 2s before next chunk...\n');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+
+        console.log(`\n✅ All chunks processed in ${totalDuration.toFixed(1)}s total`);
+        console.log(`✅ Total items localized: ${allLocalizedItems.size}/${allItems.length}`);
+
+        return allLocalizedItems;
     }
 
     /**
@@ -302,34 +401,16 @@ BEGIN:`;
 
             console.log(`✅ Found ${textMap.size} text items to localize`);
 
-            // Step 2: Build prompt
-            console.log('\nStep 2: Building localization prompt...');
-            const prompt = this.buildPrompt(textMap, targetConfig);
+            // Step 2: Decide if we need chunking
+            let localizedMap;
             
-            const promptSize = (Buffer.byteLength(prompt, 'utf8') / 1024).toFixed(1);
-            console.log(`✅ Prompt size: ${promptSize}KB (much smaller than full HTML!)`);
-
-            // Step 3: Send to AI
-            console.log(`\nStep 3: Sending to ${this.model}...`);
-            console.log('⏳ This should take 10-30 seconds...');
-
-            const aiStartTime = Date.now();
-            const response = await generateText(
-                prompt,
-                'You are a localization expert. Return ONLY a JSON array with no additional text.',
-                {
-                    model: this.model,
-                    maxTokens: this.maxTokens,
-                    temperature: 0.3
-                }
-            );
-            const aiDuration = ((Date.now() - aiStartTime) / 1000).toFixed(1);
-            console.log(`✅ AI responded in ${aiDuration}s`);
-            console.log(`Response length: ${response.length} characters`);
-
-            // Step 4: Parse response
-            console.log('\nStep 4: Parsing AI response...');
-            const localizedMap = this.parseResponse(response);
+            if (textMap.size > this.chunkSize) {
+                console.log(`\n⚠️  Large content (${textMap.size} items) - processing in chunks of ${this.chunkSize}`);
+                localizedMap = await this.processInChunks(textMap, targetConfig);
+            } else {
+                console.log(`\n✅ Small content (${textMap.size} items) - processing in single batch`);
+                localizedMap = await this.processSingleBatch(textMap, targetConfig);
+            }
             console.log(`✅ Parsed ${localizedMap.size} localized texts`);
 
             // Step 5: Replace in HTML
