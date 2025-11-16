@@ -125,50 +125,38 @@ Update all alt texts and image descriptions to target language.`;
 10. ✅ Do NOT modify <script> tags or JavaScript code
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📤 OUTPUT FORMAT - MANDATORY!
+📤 OUTPUT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-⚠️  YOU MUST wrap your ENTIRE response in <output> tags!
+Return ONLY the complete updated HTML document.
+Start with <!DOCTYPE html> and end with </html>
+Do NOT add any explanations, commentary, or markdown formatting.
 
-Format (REQUIRED):
-<output>
+Your ENTIRE response must be valid HTML code only.
+
+Example of what to return:
 <!DOCTYPE html>
-<html lang="${targetConfig.targetLanguage}">
-<head>
-    <title>Your Updated Title</title>
-    ... rest of head ...
-</head>
-<body>
-    ... your updated content ...
-</body>
-</html>
-</output>
-
-CRITICAL:
-✅ Start immediately with: <output>
-✅ Include COMPLETE HTML (DOCTYPE to </html>)
-✅ End with: </output>
-✅ NO text before <output>
-✅ NO text after </output>
-❌ DO NOT explain your changes
-❌ DO NOT add commentary
-
-Example Response:
-<output>
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="${targetConfig.targetLanguage}"${targetConfig.targetLanguage === 'Hebrew' || targetConfig.targetLanguage === 'Arabic' ? ' dir="rtl"' : ''}>
 <head>
     <meta charset="UTF-8">
-    <title>כותרת מעודכנת</title>
+    <title>Your Localized Title</title>
+    <!-- ... rest of head ... -->
 </head>
 <body>
-    <h1>כותרת ראשית</h1>
-    <p>תוכן מעודכן בעברית...</p>
+    <h1>Your Localized Heading</h1>
+    <p>Your localized content...</p>
+    <!-- ... rest of body ... -->
 </body>
 </html>
-</output>
 
-BEGIN NOW - Start with <output> tag!`;
+IMPORTANT:
+- Return ONLY HTML code
+- NO markdown code blocks (\`\`\`html)
+- NO explanatory text
+- Start directly with: <!DOCTYPE html>
+- End with: </html>
+
+BEGIN - Return the HTML now:`;
 
         return prompt;
     }
@@ -180,38 +168,72 @@ BEGIN NOW - Start with <output> tag!`;
         console.log('📋 Parsing AI response...');
         console.log(`Response length: ${responseText.length} characters`);
         
-        // Try to extract from <output> tags (preferred format)
-        let match = responseText.match(/<output>([\s\S]*?)<\/output>/);
+        // Remove markdown code blocks if present
+        let cleanedResponse = responseText.trim();
         
+        // Remove ```html and ``` markers
+        cleanedResponse = cleanedResponse.replace(/^```html\s*/i, '');
+        cleanedResponse = cleanedResponse.replace(/^```\s*/i, '');
+        cleanedResponse = cleanedResponse.replace(/\s*```\s*$/i, '');
+        
+        // Try to extract from <output> tags (legacy format)
+        let match = cleanedResponse.match(/<output>([\s\S]*?)<\/output>/);
         if (match) {
             console.log('✅ Found content in <output> tags');
             return match[1].trim();
         }
         
-        // Fallback: Try to find HTML content directly
-        console.log('⚠️  No <output> tags found, trying to extract HTML directly...');
+        // Try to find HTML with DOCTYPE
+        const doctypeMatch = cleanedResponse.match(/<!DOCTYPE[\s\S]*?<\/html>/i);
+        if (doctypeMatch) {
+            console.log('✅ Found HTML with DOCTYPE');
+            return doctypeMatch[0].trim();
+        }
         
-        // Look for DOCTYPE or <html> tag
-        const htmlMatch = responseText.match(/<!DOCTYPE[\s\S]*?<\/html>/i) || 
-                          responseText.match(/<html[\s\S]*?<\/html>/i);
-        
+        // Try to find HTML tag
+        const htmlMatch = cleanedResponse.match(/<html[\s\S]*?<\/html>/i);
         if (htmlMatch) {
-            console.log('✅ Found HTML content directly');
+            console.log('✅ Found HTML tag');
             return htmlMatch[0].trim();
         }
         
-        // Last resort: check if the entire response looks like HTML
-        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-            console.log('✅ Response appears to be complete HTML');
-            return responseText.trim();
+        // Check if response starts with HTML after cleaning
+        if (cleanedResponse.startsWith('<!DOCTYPE') || cleanedResponse.startsWith('<html')) {
+            console.log('✅ Response is clean HTML');
+            return cleanedResponse;
+        }
+        
+        // Try to find HTML somewhere in the middle of the response
+        const anyDoctypeMatch = cleanedResponse.match(/<!DOCTYPE[\s\S]+<\/html>/i);
+        if (anyDoctypeMatch) {
+            console.log('✅ Found HTML in middle of response');
+            return anyDoctypeMatch[0].trim();
         }
         
         // Log for debugging
         console.error('❌ Could not parse response');
-        console.error('First 500 chars:', responseText.substring(0, 500));
-        console.error('Last 500 chars:', responseText.substring(Math.max(0, responseText.length - 500)));
+        console.error('First 300 chars:', cleanedResponse.substring(0, 300));
+        console.error('Last 300 chars:', cleanedResponse.substring(Math.max(0, cleanedResponse.length - 300)));
         
-        throw new Error(`AI returned invalid format. Response length: ${responseText.length} chars. Try a different model (Claude Sonnet 4 recommended) or check if HTML is too large.`);
+        // Check if it contains HTML at all
+        if (cleanedResponse.includes('<html') && cleanedResponse.includes('</html>')) {
+            console.log('⚠️  Response contains HTML but format is unusual, attempting extraction...');
+            const startIndex = cleanedResponse.indexOf('<!DOCTYPE');
+            const altStartIndex = cleanedResponse.indexOf('<html');
+            const endIndex = cleanedResponse.lastIndexOf('</html>') + 7;
+            
+            if (startIndex !== -1) {
+                const extracted = cleanedResponse.substring(startIndex, endIndex);
+                console.log('✅ Extracted HTML from unusual format');
+                return extracted.trim();
+            } else if (altStartIndex !== -1) {
+                const extracted = cleanedResponse.substring(altStartIndex, endIndex);
+                console.log('✅ Extracted HTML without DOCTYPE');
+                return extracted.trim();
+            }
+        }
+        
+        throw new Error(`Could not extract valid HTML. Response length: ${responseText.length} chars. Try GPT-4 Omni or Gemini Pro 1.5 instead.`);
     }
 
     /**
@@ -257,11 +279,11 @@ BEGIN NOW - Start with <output> tag!`;
         try {
             updatedHtml = await generateText(
                 prompt,
-                'You are a professional content localization expert. You MUST wrap your output in <output> tags. Follow all instructions exactly.',
+                'You are a professional content localization expert. Return ONLY valid HTML code with no additional text or formatting.',
                 {
                     model: this.model,
                     maxTokens: this.maxTokens,
-                    temperature: 0.2  // Lower temperature for more consistent formatting
+                    temperature: 0.1  // Very low temperature for consistent formatting
                 }
             );
         } catch (apiError) {
