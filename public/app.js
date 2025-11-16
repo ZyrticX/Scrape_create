@@ -8,7 +8,8 @@ let imageGenerationModels = [];
 document.addEventListener('DOMContentLoaded', async () => {
     await checkSystemStatus();
     await loadTemplates();
-    await loadModels();
+    await loadMultiFileModels();
+    await loadImageGenerationModels();
     setupEventListeners();
 });
 
@@ -96,11 +97,7 @@ function setupEventListeners() {
     document.getElementById('numVariants').addEventListener('input', (e) => {
         document.getElementById('numVariantsValue').textContent = e.target.value;
     });
-    document.getElementById('generateImagesCheck').addEventListener('change', (e) => {
-        document.getElementById('imageModelGroup').style.display = e.target.checked ? 'block' : 'none';
-    });
-    // NEW: Multi-File Cursor event listeners
-    document.getElementById('methodSelect').addEventListener('change', handleMethodChange);
+    // Multi-File Cursor event listeners
     document.getElementById('multiGenerateImagesCheck').addEventListener('change', handleMultiImageCheckChange);
     document.getElementById('generateBtn').addEventListener('click', handleGenerate);
 }
@@ -298,15 +295,13 @@ async function handleScrape() {
     }
 }
 
-// Handle generate
+// Handle generate - Multi-File Cursor only
 async function handleGenerate() {
-    // NEW: Route to appropriate method
-    const method = document.getElementById('methodSelect').value;
-    if (method === 'multi') {
-        return await handleGenerateMulti();
-    }
+    return await handleGenerateMulti();
+}
 
-    // EXISTING: Simple method continues below
+// OLD Simple method (kept for reference but not used)
+async function handleGenerateSimple_DISABLED() {
     if (!currentTemplateId) {
         showStatus('generateStatus', 'Please select a template first', 'error');
         return;
@@ -473,23 +468,6 @@ async function loadImageGenerationModels() {
     }
 }
 
-// Handle method selection change
-function handleMethodChange() {
-    const method = document.getElementById('methodSelect').value;
-    const simpleOptions = document.getElementById('simpleMethodOptions');
-    const multiOptions = document.getElementById('multiFileOptions');
-
-    if (method === 'multi') {
-        simpleOptions.style.display = 'none';
-        multiOptions.style.display = 'block';
-        loadMultiFileModels();
-        loadImageGenerationModels();
-    } else {
-        simpleOptions.style.display = 'block';
-        multiOptions.style.display = 'none';
-    }
-}
-
 // Handle image generation checkbox for multi-file
 function handleMultiImageCheckChange() {
     const checked = document.getElementById('multiGenerateImagesCheck').checked;
@@ -512,7 +490,12 @@ async function handleGenerateMulti() {
         return;
     }
 
-    showProgress(true, 0, 'Initializing Multi-File Cursor...');
+    if (!model) {
+        showStatus('generateStatus', 'Please select an AI model', 'error');
+        return;
+    }
+
+    showProgress(true, 0, 'Initializing AI-powered localization...');
     document.getElementById('generateBtn').disabled = true;
 
     const results = [];
@@ -521,7 +504,7 @@ async function handleGenerateMulti() {
     for (let i = 1; i <= numVariants; i++) {
         try {
             showProgress(true, (i - 1) / numVariants * 100, 
-                `Generating variant ${i}/${numVariants} with Multi-File Cursor...`);
+                `Generating variant ${i}/${numVariants} with AI...`);
 
             const response = await fetch('/api/generate-variant-multi', {
                 method: 'POST',
