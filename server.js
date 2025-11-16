@@ -393,22 +393,60 @@ app.post('/api/generate-variant-multi', async (req, res) => {
 
         console.log(`📊 Template HTML size: ${(template.originalHtml.length / 1024).toFixed(1)}KB`);
         
-        // Use Smart Content Replacer (much faster!)
-        const replacer = new SmartContentReplacer({
-            model: model || 'anthropic/claude-sonnet-4',
-            maxTokens: 8000
-        });
+        // Fallback model chain: user model -> Claude Sonnet 4 -> GPT-4
+        const fallbackModels = [
+            model || 'anthropic/claude-sonnet-4',
+            'anthropic/claude-sonnet-4',
+            'openai/gpt-4o'
+        ];
         
-        const result = await replacer.processHtml(
-            template.originalHtml,
-            {
-                targetLanguage,
-                targetCountry,
-                writingStyle,
-                targetAudience,
-                additionalInstructions
+        // Remove duplicates and keep order
+        const modelsToTry = [...new Set(fallbackModels)];
+        
+        let result = null;
+        let lastError = null;
+        let attemptCount = 0;
+        
+        for (const currentModel of modelsToTry) {
+            attemptCount++;
+            try {
+                console.log(`\n📍 Attempt ${attemptCount}/${modelsToTry.length}: Trying model ${currentModel}...`);
+                
+                const replacer = new SmartContentReplacer({
+                    model: currentModel,
+                    maxTokens: 8000
+                });
+                
+                result = await replacer.processHtml(
+                    template.originalHtml,
+                    {
+                        targetLanguage,
+                        targetCountry,
+                        writingStyle,
+                        targetAudience,
+                        additionalInstructions
+                    }
+                );
+                
+                console.log(`✅ Success with ${currentModel}!`);
+                break; // Success! Exit retry loop
+                
+            } catch (error) {
+                lastError = error;
+                console.error(`❌ Attempt ${attemptCount} failed with ${currentModel}:`, error.message);
+                
+                if (attemptCount < modelsToTry.length) {
+                    console.log(`→ Will retry with next model...`);
+                } else {
+                    console.error(`❌ All ${modelsToTry.length} models failed!`);
+                }
             }
-        );
+        }
+        
+        // If all attempts failed, throw the last error
+        if (!result) {
+            throw new Error(`All models failed. Last error: ${lastError.message}`);
+        }
         
         console.log(`✅ Processing completed successfully`);
 

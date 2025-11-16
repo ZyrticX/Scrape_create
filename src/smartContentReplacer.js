@@ -130,33 +130,94 @@ BEGIN:`;
     }
 
     /**
-     * Parse AI response
+     * Parse AI response - Robust parser that handles multiple formats
      */
     parseResponse(responseText) {
         console.log('📋 Parsing AI response...');
+        console.log(`Response length: ${responseText.length} characters`);
+        console.log(`First 200 chars: ${responseText.substring(0, 200)}`);
+        console.log(`Last 200 chars: ${responseText.substring(responseText.length - 200)}`);
         
-        // Try to extract JSON array
-        let jsonMatch = responseText.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) {
-            // Try to find JSON after removing markdown
-            const cleaned = responseText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+        let jsonMatch = null;
+        let jsonText = null;
+
+        // Strategy 1: Direct JSON array match
+        jsonMatch = responseText.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+            console.log('✓ Strategy 1: Found direct JSON array');
+            jsonText = jsonMatch[0];
+        }
+
+        // Strategy 2: Remove markdown code blocks
+        if (!jsonText) {
+            console.log('→ Trying Strategy 2: Remove markdown...');
+            let cleaned = responseText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
             jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                console.log('✓ Strategy 2: Found JSON after removing markdown');
+                jsonText = jsonMatch[0];
+            }
         }
 
-        if (!jsonMatch) {
-            console.error('Response:', responseText.substring(0, 500));
-            throw new Error('Could not find JSON array in response');
+        // Strategy 3: Extract between first [ and last ]
+        if (!jsonText) {
+            console.log('→ Trying Strategy 3: First [ to last ]...');
+            const firstBracket = responseText.indexOf('[');
+            const lastBracket = responseText.lastIndexOf(']');
+            if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+                jsonText = responseText.substring(firstBracket, lastBracket + 1);
+                console.log('✓ Strategy 3: Extracted between brackets');
+            }
         }
 
-        const localizedArray = JSON.parse(jsonMatch[0]);
-        const localizedMap = new Map();
-        
-        localizedArray.forEach(item => {
-            localizedMap.set(item.id, item.localized);
-        });
+        // Strategy 4: Look for JSON after common phrases
+        if (!jsonText) {
+            console.log('→ Trying Strategy 4: Look after common phrases...');
+            const patterns = [
+                /(?:here'?s? the|here is the|output|result|localized content).*?\n*(\[[\s\S]*\])/i,
+                /(?:begin|start).*?\n*(\[[\s\S]*\])/i,
+                /\n\s*(\[[\s\S]*\])/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = responseText.match(pattern);
+                if (match && match[1]) {
+                    jsonText = match[1];
+                    console.log('✓ Strategy 4: Found JSON after phrase');
+                    break;
+                }
+            }
+        }
 
-        console.log(`✅ Parsed ${localizedMap.size} localized texts`);
-        return localizedMap;
+        if (!jsonText) {
+            console.error('❌ All parsing strategies failed!');
+            console.error('Full response:', responseText);
+            throw new Error('Could not find JSON array in response. Try using Claude Sonnet 4 for better results.');
+        }
+
+        // Try to parse the JSON
+        try {
+            console.log('→ Attempting to parse JSON...');
+            const localizedArray = JSON.parse(jsonText);
+            
+            if (!Array.isArray(localizedArray)) {
+                throw new Error('Parsed result is not an array');
+            }
+
+            const localizedMap = new Map();
+            localizedArray.forEach(item => {
+                if (item.id && item.localized) {
+                    localizedMap.set(item.id, item.localized);
+                }
+            });
+
+            console.log(`✅ Successfully parsed ${localizedMap.size} localized texts`);
+            return localizedMap;
+        } catch (parseError) {
+            console.error('❌ JSON parsing failed:', parseError.message);
+            console.error('Attempted to parse:', jsonText.substring(0, 500));
+            throw new Error(`JSON parsing failed: ${parseError.message}. Try using Claude Sonnet 4 for more reliable output.`);
+        }
     }
 
     /**
