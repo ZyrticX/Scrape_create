@@ -17,6 +17,7 @@ import { createVariantZip } from './src/zipGenerator.js';
 import { processHTML } from './src/htmlProcessor.js';
 import { getTextModels, getImageModels, getMultiFileModels, getImageGenerationModels } from './src/openRouterModels.js';
 import { MultiFileContentReplacer } from './src/multiFileContentReplacer.js';
+import { SmartContentReplacer } from './src/smartContentReplacer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -390,15 +391,13 @@ app.post('/api/generate-variant-multi', async (req, res) => {
         const variantDir = path.join(__dirname, 'variants', variantId);
         await fs.mkdir(variantDir, { recursive: true });
 
-        // Process with Multi-File Cursor
-        const replacer = new MultiFileContentReplacer({
-            model: model || 'anthropic/claude-sonnet-4',
-            maxTokens: 32000,  // Increased for larger HTML files
-            generateImages: generateImages || false,
-            imageModel: imageModel || 'black-forest-labs/flux-pro'
-        });
-
         console.log(`📊 Template HTML size: ${(template.originalHtml.length / 1024).toFixed(1)}KB`);
+        
+        // Use Smart Content Replacer (much faster!)
+        const replacer = new SmartContentReplacer({
+            model: model || 'anthropic/claude-sonnet-4',
+            maxTokens: 8000
+        });
         
         const result = await replacer.processHtml(
             template.originalHtml,
@@ -408,8 +407,7 @@ app.post('/api/generate-variant-multi', async (req, res) => {
                 writingStyle,
                 targetAudience,
                 additionalInstructions
-            },
-            template.url
+            }
         );
         
         console.log(`✅ Processing completed successfully`);
@@ -431,14 +429,11 @@ app.post('/api/generate-variant-multi', async (req, res) => {
             writingStyle,
             targetAudience,
             model: result.metadata.model,
-            generateImages: generateImages || false,
-            imageModel: generateImages ? imageModel : null,
-            sizeKB: result.metadata.sizeKB,
-            estimatedTokens: result.metadata.estimatedTokens,
-            imagesFound: result.metadata.imagesFound,
+            textsProcessed: result.metadata.textsProcessed,
+            replacementsMade: result.metadata.replacementsMade,
             duration: result.metadata.duration,
             generatedAt: new Date().toISOString(),
-            method: 'multi-file-cursor'
+            method: 'smart-content-replacer'
         };
 
         await fs.writeFile(

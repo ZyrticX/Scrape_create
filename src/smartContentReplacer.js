@@ -1,0 +1,257 @@
+import cheerio from 'cheerio';
+import { generateText } from './openRouterClient.js';
+
+/**
+ * Smart Content Replacer
+ * Extracts only text content, localizes it, then replaces in original HTML
+ * Much faster and cheaper than sending entire HTML to AI
+ */
+export class SmartContentReplacer {
+    constructor(config = {}) {
+        this.model = config.model || 'anthropic/claude-sonnet-4';
+        this.maxTokens = config.maxTokens || 8000;
+    }
+
+    /**
+     * Extract all text content from HTML
+     */
+    extractTextContent(html) {
+        console.log('📝 Extracting text content...');
+        const $ = cheerio.load(html);
+        const textMap = new Map();
+        let counter = 0;
+
+        // Extract text from common content elements
+        const selectors = [
+            'title',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'p', 'span', 'div', 'li', 'td', 'th',
+            'a', 'button', 'label',
+            '[alt]', '[title]', '[placeholder]'
+        ];
+
+        selectors.forEach(selector => {
+            $(selector).each((i, elem) => {
+                const $elem = $(elem);
+                const text = $elem.text().trim();
+                
+                // Skip empty, very short, or script-like content
+                if (text && text.length > 2 && !text.match(/^[\d\s\.\,\:\;\(\)\{\}\[\]]+$/)) {
+                    const id = `TEXT_${counter++}`;
+                    textMap.set(id, {
+                        original: text,
+                        selector: selector,
+                        context: $elem.parent().prop('tagName')?.toLowerCase() || 'unknown'
+                    });
+                }
+
+                // Extract attributes
+                if ($elem.attr('alt')) {
+                    const id = `ALT_${counter++}`;
+                    textMap.set(id, {
+                        original: $elem.attr('alt'),
+                        selector: `${selector}[alt]`,
+                        context: 'image-alt'
+                    });
+                }
+
+                if ($elem.attr('title')) {
+                    const id = `TITLE_${counter++}`;
+                    textMap.set(id, {
+                        original: $elem.attr('title'),
+                        selector: `${selector}[title]`,
+                        context: 'title-attr'
+                    });
+                }
+
+                if ($elem.attr('placeholder')) {
+                    const id = `PLACEHOLDER_${counter++}`;
+                    textMap.set(id, {
+                        original: $elem.attr('placeholder'),
+                        selector: `${selector}[placeholder]`,
+                        context: 'placeholder'
+                    });
+                }
+            });
+        });
+
+        console.log(`✅ Extracted ${textMap.size} text items`);
+        return textMap;
+    }
+
+    /**
+     * Build efficient prompt with just text content
+     */
+    buildPrompt(textMap, targetConfig) {
+        const textArray = Array.from(textMap.entries()).map(([id, data]) => ({
+            id,
+            text: data.original,
+            context: data.context
+        }));
+
+        return `You are a professional content localization expert.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 LOCALIZATION TASK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Target Language: ${targetConfig.targetLanguage}
+Target Country: ${targetConfig.targetCountry}
+Writing Style: ${targetConfig.writingStyle || 'professional and friendly'}
+Target Audience: ${targetConfig.targetAudience || 'general users'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 TEXT CONTENT TO LOCALIZE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${JSON.stringify(textArray, null, 2)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📤 OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Return a JSON array with localized text for each ID:
+
+[
+  {"id": "TEXT_0", "localized": "Your localized text here"},
+  {"id": "TEXT_1", "localized": "Another localized text"},
+  ...
+]
+
+IMPORTANT:
+- Return ONLY the JSON array (no markdown, no explanations)
+- Keep the same IDs
+- Localize all text to ${targetConfig.targetLanguage}
+- Adapt cultural references, names, currencies, dates
+- Maintain the tone and style
+- Start with [ and end with ]
+
+BEGIN:`;
+    }
+
+    /**
+     * Parse AI response
+     */
+    parseResponse(responseText) {
+        console.log('📋 Parsing AI response...');
+        
+        // Try to extract JSON array
+        let jsonMatch = responseText.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) {
+            // Try to find JSON after removing markdown
+            const cleaned = responseText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+            jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+        }
+
+        if (!jsonMatch) {
+            console.error('Response:', responseText.substring(0, 500));
+            throw new Error('Could not find JSON array in response');
+        }
+
+        const localizedArray = JSON.parse(jsonMatch[0]);
+        const localizedMap = new Map();
+        
+        localizedArray.forEach(item => {
+            localizedMap.set(item.id, item.localized);
+        });
+
+        console.log(`✅ Parsed ${localizedMap.size} localized texts`);
+        return localizedMap;
+    }
+
+    /**
+     * Replace text in HTML
+     */
+    replaceTextInHtml(html, textMap, localizedMap) {
+        console.log('🔄 Replacing text in HTML...');
+        let modifiedHtml = html;
+        let replaceCount = 0;
+
+        // Sort by length (longest first) to avoid partial replacements
+        const entries = Array.from(textMap.entries()).sort((a, b) => 
+            b[1].original.length - a[1].original.length
+        );
+
+        entries.forEach(([id, data]) => {
+            const localized = localizedMap.get(id);
+            if (localized) {
+                // Escape special regex characters in original text
+                const escapedOriginal = data.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(escapedOriginal, 'g');
+                const matches = modifiedHtml.match(regex);
+                
+                if (matches) {
+                    modifiedHtml = modifiedHtml.replace(regex, localized);
+                    replaceCount += matches.length;
+                }
+            }
+        });
+
+        console.log(`✅ Made ${replaceCount} replacements`);
+        return modifiedHtml;
+    }
+
+    /**
+     * Main processing function
+     */
+    async processHtml(originalHtml, targetConfig) {
+        const startTime = Date.now();
+
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🚀 Smart Content Replacer - Starting');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+        // Step 1: Extract text
+        const textMap = this.extractTextContent(originalHtml);
+
+        if (textMap.size === 0) {
+            throw new Error('No text content found to localize');
+        }
+
+        // Step 2: Build prompt
+        console.log('\n📝 Building localization prompt...');
+        const prompt = this.buildPrompt(textMap, targetConfig);
+        
+        const promptSize = (Buffer.byteLength(prompt, 'utf8') / 1024).toFixed(1);
+        console.log(`Prompt size: ${promptSize}KB (much smaller than full HTML!)`);
+
+        // Step 3: Send to AI
+        console.log(`\n🤖 Sending to ${this.model}...`);
+        console.log('⏳ This should take 10-30 seconds...');
+
+        const aiStartTime = Date.now();
+        const response = await generateText(
+            prompt,
+            'You are a localization expert. Return ONLY a JSON array with no additional text.',
+            {
+                model: this.model,
+                maxTokens: this.maxTokens,
+                temperature: 0.3
+            }
+        );
+        const aiDuration = ((Date.now() - aiStartTime) / 1000).toFixed(1);
+        console.log(`✅ AI responded in ${aiDuration}s`);
+
+        // Step 4: Parse response
+        const localizedMap = this.parseResponse(response);
+
+        // Step 5: Replace in HTML
+        const finalHtml = this.replaceTextInHtml(originalHtml, textMap, localizedMap);
+
+        const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`✅ Processing complete in ${totalDuration}s`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+        return {
+            html: finalHtml,
+            metadata: {
+                model: this.model,
+                duration: `${totalDuration}s`,
+                textsProcessed: textMap.size,
+                replacementsMade: localizedMap.size
+            }
+        };
+    }
+}
+
