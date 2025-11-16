@@ -393,7 +393,7 @@ app.post('/api/generate-variant-multi', async (req, res) => {
         // Process with Multi-File Cursor
         const replacer = new MultiFileContentReplacer({
             model: model || 'anthropic/claude-sonnet-4',
-            maxTokens: 16000,
+            maxTokens: 32000,  // Increased for larger HTML files
             generateImages: generateImages || false,
             imageModel: imageModel || 'black-forest-labs/flux-pro'
         });

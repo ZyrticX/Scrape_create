@@ -10,7 +10,8 @@ import * as cheerio from 'cheerio';
 export class MultiFileContentReplacer {
     constructor(config = {}) {
         this.model = config.model || 'anthropic/claude-sonnet-4';
-        this.maxTokens = config.maxTokens || 16000;
+        // Increase max tokens for larger HTML files
+        this.maxTokens = config.maxTokens || 32000;
         this.generateImages = config.generateImages || false;
         this.imageModel = config.imageModel || 'black-forest-labs/flux-pro';
     }
@@ -22,12 +23,14 @@ export class MultiFileContentReplacer {
         const sizeKB = Buffer.byteLength(html, 'utf8') / 1024;
         const estimatedTokens = Math.ceil(html.length / 4);
         
-        if (sizeKB > 100) {
-            throw new Error(`HTML too large: ${sizeKB.toFixed(1)}KB (max 100KB)`);
+        if (sizeKB > 500) {
+            throw new Error(`HTML too large: ${sizeKB.toFixed(1)}KB (max 500KB). Consider using a smaller template or splitting the content.`);
         }
         
-        if (sizeKB > 50) {
-            console.warn(`⚠️  Large HTML: ${sizeKB.toFixed(1)}KB - may be slow`);
+        if (sizeKB > 300) {
+            console.warn(`⚠️  Very large HTML: ${sizeKB.toFixed(1)}KB - processing will be slow and expensive`);
+        } else if (sizeKB > 150) {
+            console.warn(`⚠️  Large HTML: ${sizeKB.toFixed(1)}KB - may take longer than usual`);
         }
         
         return { sizeKB, estimatedTokens };
