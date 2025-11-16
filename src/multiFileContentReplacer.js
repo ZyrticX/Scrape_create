@@ -125,21 +125,50 @@ Update all alt texts and image descriptions to target language.`;
 10. ✅ Do NOT modify <script> tags or JavaScript code
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📤 OUTPUT FORMAT
+📤 OUTPUT FORMAT - MANDATORY!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Return the complete updated HTML wrapped in <output> tags:
+⚠️  YOU MUST wrap your ENTIRE response in <output> tags!
 
+Format (REQUIRED):
 <output>
-[Full updated HTML here]
+<!DOCTYPE html>
+<html lang="${targetConfig.targetLanguage}">
+<head>
+    <title>Your Updated Title</title>
+    ... rest of head ...
+</head>
+<body>
+    ... your updated content ...
+</body>
+</html>
 </output>
 
-Important:
-- Include the ENTIRE HTML document
-- Use exact same structure
-- Only textual content should change
+CRITICAL:
+✅ Start immediately with: <output>
+✅ Include COMPLETE HTML (DOCTYPE to </html>)
+✅ End with: </output>
+✅ NO text before <output>
+✅ NO text after </output>
+❌ DO NOT explain your changes
+❌ DO NOT add commentary
 
-Begin now!`;
+Example Response:
+<output>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>כותרת מעודכנת</title>
+</head>
+<body>
+    <h1>כותרת ראשית</h1>
+    <p>תוכן מעודכן בעברית...</p>
+</body>
+</html>
+</output>
+
+BEGIN NOW - Start with <output> tag!
 
         return prompt;
     }
