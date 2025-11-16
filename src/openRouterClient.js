@@ -113,14 +113,37 @@ export async function generateText(prompt, systemMessage = null, options = {}) {
                     clearTimeout(timeoutId);
 
                     if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
+                        let errorData = {};
+                        try {
+                            const text = await response.text();
+                            if (text) {
+                                errorData = JSON.parse(text);
+                            }
+                        } catch (e) {
+                            errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+                        }
                         const error = new Error(`OpenRouter API error: ${response.status} - ${JSON.stringify(errorData)}`);
                         error.status = response.status;
                         error.errorData = errorData;
                         throw error;
                     }
 
-                    return await response.json();
+                    // Get response text first to handle partial responses
+                    const responseText = await response.text();
+                    if (!responseText || responseText.trim().length === 0) {
+                        throw new Error('Empty response from OpenRouter API');
+                    }
+
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (parseError) {
+                        console.error('Failed to parse JSON response:', parseError.message);
+                        console.error('Response text (first 500 chars):', responseText.substring(0, 500));
+                        throw new Error(`Invalid JSON response from API: ${parseError.message}. Response may be incomplete or truncated.`);
+                    }
+
+                    return result;
                 } catch (error) {
                     clearTimeout(timeoutId);
                     if (error.name === 'AbortError') {
