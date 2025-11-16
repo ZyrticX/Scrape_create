@@ -414,7 +414,8 @@ app.post('/api/generate-variant-multi', async (req, res) => {
                 
                 const replacer = new SmartContentReplacer({
                     model: currentModel,
-                    maxTokens: 8000
+                    maxTokens: 8000,
+                    chunkSize: 200  // Process in chunks of 200 items for large content
                 });
                 
                 result = await replacer.processHtml(
