@@ -148,11 +148,40 @@ Begin now!`;
      * Parse AI response and extract HTML
      */
     parseResponse(responseText) {
-        const match = responseText.match(/<output>([\s\S]*?)<\/output>/);
-        if (!match) {
-            throw new Error('AI response missing <output> tags');
+        console.log('📋 Parsing AI response...');
+        console.log(`Response length: ${responseText.length} characters`);
+        
+        // Try to extract from <output> tags (preferred format)
+        let match = responseText.match(/<output>([\s\S]*?)<\/output>/);
+        
+        if (match) {
+            console.log('✅ Found content in <output> tags');
+            return match[1].trim();
         }
-        return match[1].trim();
+        
+        // Fallback: Try to find HTML content directly
+        console.log('⚠️  No <output> tags found, trying to extract HTML directly...');
+        
+        // Look for DOCTYPE or <html> tag
+        const htmlMatch = responseText.match(/<!DOCTYPE[\s\S]*?<\/html>/i) || 
+                          responseText.match(/<html[\s\S]*?<\/html>/i);
+        
+        if (htmlMatch) {
+            console.log('✅ Found HTML content directly');
+            return htmlMatch[0].trim();
+        }
+        
+        // Last resort: check if the entire response looks like HTML
+        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+            console.log('✅ Response appears to be complete HTML');
+            return responseText.trim();
+        }
+        
+        // Log first 500 chars for debugging
+        console.error('❌ Could not parse response. First 500 chars:');
+        console.error(responseText.substring(0, 500));
+        
+        throw new Error('AI response missing <output> tags and no valid HTML found. Please check the model output format.');
     }
 
     /**
@@ -196,16 +225,17 @@ Begin now!`;
         
         const updatedHtml = await generateText(
             prompt,
-            'You are a professional content localization expert. Follow all instructions exactly.',
+            'You are a professional content localization expert. You MUST wrap your output in <output> tags. Follow all instructions exactly.',
             {
                 model: this.model,
                 maxTokens: this.maxTokens,
-                temperature: 0.3
+                temperature: 0.2  // Lower temperature for more consistent formatting
             }
         );
         
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`✅ Received response in ${duration}s`);
+        console.log(`📊 Response size: ${updatedHtml.length} characters`);
         
         console.log('\n✍️  Step 5: Parsing response...');
         const parsedHtml = this.parseResponse(updatedHtml);
