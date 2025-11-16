@@ -240,14 +240,42 @@ BEGIN - Return the HTML now:`;
      * Validate HTML structure
      */
     validateHtml(html) {
+        console.log('🔍 Validating HTML structure...');
+        console.log(`HTML length: ${html.length} characters`);
+        
         const hasHtml = html.includes('<html');
         const hasBody = html.includes('<body');
-        const hasClosingTags = html.includes('</html>') && html.includes('</body>');
+        const hasHead = html.includes('<head');
+        const hasClosingHtml = html.includes('</html>');
+        const hasClosingBody = html.includes('</body>');
         
-        if (!hasHtml || !hasBody || !hasClosingTags) {
-            throw new Error('Invalid HTML: missing basic structure');
+        console.log('Structure check:', {
+            hasHtml,
+            hasHead,
+            hasBody,
+            hasClosingHtml,
+            hasClosingBody
+        });
+        
+        // More lenient validation
+        if (!hasHtml) {
+            console.error('❌ Missing <html> tag');
+            console.error('HTML preview:', html.substring(0, 500));
+            throw new Error('Invalid HTML: missing <html> tag');
         }
         
+        if (!hasClosingHtml) {
+            console.error('❌ Missing </html> closing tag');
+            console.error('HTML end:', html.substring(Math.max(0, html.length - 200)));
+            throw new Error('Invalid HTML: missing </html> closing tag');
+        }
+        
+        // Body is optional for some cases
+        if (!hasBody) {
+            console.warn('⚠️  Warning: No <body> tag found, but continuing...');
+        }
+        
+        console.log('✅ HTML structure is valid');
         return true;
     }
 
@@ -302,11 +330,43 @@ BEGIN - Return the HTML now:`;
         console.log('\n✍️  Step 5: Parsing response...');
         const parsedHtml = this.parseResponse(updatedHtml);
         
-        console.log('\n✔️  Step 6: Validating...');
-        this.validateHtml(parsedHtml);
+        console.log(`✅ Parsed HTML length: ${parsedHtml.length} characters`);
+        console.log('First 200 chars of parsed HTML:', parsedHtml.substring(0, 200));
+        
+        console.log('\n✔️  Step 6: Validating and fixing...');
+        let finalParsedHtml = parsedHtml;
+        
+        try {
+            this.validateHtml(finalParsedHtml);
+        } catch (validationError) {
+            console.error('❌ Validation failed:', validationError.message);
+            
+            // Try to fix common issues
+            let fixed = false;
+            
+            // Add DOCTYPE if missing
+            if (!finalParsedHtml.includes('<!DOCTYPE')) {
+                console.log('🔧 Adding missing DOCTYPE...');
+                finalParsedHtml = '<!DOCTYPE html>\n' + finalParsedHtml;
+                fixed = true;
+            }
+            
+            // Try validation again after fixes
+            if (fixed) {
+                try {
+                    this.validateHtml(finalParsedHtml);
+                    console.log('✅ HTML fixed and validated');
+                } catch (e) {
+                    console.error('❌ Could not fix HTML:', e.message);
+                    throw validationError;
+                }
+            } else {
+                throw validationError;
+            }
+        }
         
         // Process URLs
-        const finalHtml = processHTML(parsedHtml, baseUrl);
+        const finalHtml = processHTML(finalParsedHtml, baseUrl);
         
         console.log('✅ Processing complete!');
         
