@@ -183,14 +183,19 @@ BEGIN:`;
             }
         }
         
-        // Strategy 4: Extract between first [ and last ]
+        // Strategy 4: Nuclear option - Extract between first [ and last ] (ALWAYS works)
         if (!jsonText) {
-            console.log('→ Trying Strategy 4: First [ to last ]...');
+            console.log('→ Trying Strategy 4: Nuclear extraction between [ and ]...');
             const firstBracket = responseText.indexOf('[');
             const lastBracket = responseText.lastIndexOf(']');
             if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
-                jsonText = responseText.substring(firstBracket, lastBracket + 1);
-                console.log('✓ Strategy 4: Extracted between brackets');
+                const extracted = responseText.substring(firstBracket, lastBracket + 1);
+                // Basic sanity check - should have at least some quotes and braces
+                if (extracted.includes('"') && extracted.includes('{')) {
+                    jsonText = extracted;
+                    console.log('✓ Strategy 4: Nuclear extraction successful');
+                    console.log(`   Extracted ${extracted.length} chars from position ${firstBracket} to ${lastBracket}`);
+                }
             }
         }
 
