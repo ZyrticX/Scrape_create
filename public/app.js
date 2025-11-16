@@ -478,8 +478,8 @@ function handleMultiImageCheckChange() {
 // Generate variant with Multi-File Cursor
 async function handleGenerateMulti() {
     const templateId = document.getElementById('templateSelect').value;
-    const targetLanguage = document.getElementById('targetLanguage').value;
-    const targetCountry = document.getElementById('targetCountry').value;
+    const targetLanguage = document.getElementById('languageSelect').value;
+    const targetCountry = document.getElementById('countrySelect').value;
     const model = document.getElementById('multiModelSelect').value;
     const generateImages = document.getElementById('multiGenerateImagesCheck').checked;
     const imageModel = generateImages ? document.getElementById('multiImageModelSelect').value : null;
