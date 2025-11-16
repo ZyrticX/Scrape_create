@@ -151,31 +151,36 @@ export function getRecommendedImageModels() {
 export const MULTI_FILE_MODELS = [
     {
         id: 'anthropic/claude-sonnet-4',
-        name: 'Claude Sonnet 4 (Recommended)',
+        name: '⭐ Claude Sonnet 4 (Recommended - Most Reliable)',
         contextWindow: 200000,
-        recommended: true
-    },
-    {
-        id: 'anthropic/claude-opus-4',
-        name: 'Claude Opus 4 (Premium)',
-        contextWindow: 200000
-    },
-    {
-        id: 'qwen/qwen-2.5-vl-32b',
-        name: 'Qwen2.5-VL-32B (Vision Support)',
-        contextWindow: 32768,
-        vision: true
+        recommended: true,
+        reliable: true
     },
     {
         id: 'openai/gpt-4o',
-        name: 'GPT-4 Omni',
+        name: '✓ GPT-4 Omni (Reliable)',
         contextWindow: 128000,
-        vision: true
+        vision: true,
+        reliable: true
+    },
+    {
+        id: 'anthropic/claude-opus-4',
+        name: '✓ Claude Opus 4 (Reliable, Premium)',
+        contextWindow: 200000,
+        reliable: true
+    },
+    {
+        id: 'qwen/qwen-2.5-vl-32b',
+        name: '⚠️ Qwen2.5-VL-32B (May need auto-retry)',
+        contextWindow: 32768,
+        vision: true,
+        reliable: false
     },
     {
         id: 'google/gemini-pro-1.5',
-        name: 'Gemini Pro 1.5',
-        contextWindow: 2000000
+        name: 'Gemini Pro 1.5 (Large context)',
+        contextWindow: 2000000,
+        reliable: true
     }
 ];
 
