@@ -504,7 +504,22 @@ async function handleGenerateMulti() {
     for (let i = 1; i <= numVariants; i++) {
         try {
             showProgress(true, (i - 1) / numVariants * 100, 
-                `Generating variant ${i}/${numVariants} with AI...`);
+                `🔄 Variant ${i}/${numVariants}: Preparing request...`);
+            
+            // Add a small delay to show the message
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            showProgress(true, ((i - 1) / numVariants * 100) + 5, 
+                `🤖 Variant ${i}/${numVariants}: Sending to AI (this may take 30-90 seconds)...`);
+
+            const startTime = Date.now();
+            
+            // Update every 5 seconds to show we're still waiting
+            const progressInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                showProgress(true, ((i - 1) / numVariants * 100) + 10, 
+                    `⏳ Variant ${i}/${numVariants}: AI is processing... (${elapsed}s elapsed)`);
+            }, 5000);
 
             const response = await fetch('/api/generate-variant-multi', {
                 method: 'POST',
@@ -521,17 +536,29 @@ async function handleGenerateMulti() {
                 })
             });
 
+            clearInterval(progressInterval);
+            
+            const totalTime = Math.floor((Date.now() - startTime) / 1000);
+            showProgress(true, ((i - 1) / numVariants * 100) + 20, 
+                `📥 Variant ${i}/${numVariants}: Processing response... (took ${totalTime}s)`);
+
             const result = await response.json();
 
             if (result.success) {
                 results.push(result);
+                showProgress(true, (i / numVariants * 100), 
+                    `✅ Variant ${i}/${numVariants}: Complete!`);
                 console.log(`✅ Variant ${i} created:`, result.variantId);
+                await new Promise(resolve => setTimeout(resolve, 500));
             } else {
                 throw new Error(result.error || 'Unknown error');
             }
         } catch (error) {
             console.error(`Error generating variant ${i}:`, error);
             errors.push(`Variant ${i}: ${error.message}`);
+            showProgress(true, (i / numVariants * 100), 
+                `❌ Variant ${i}/${numVariants}: Failed - ${error.message}`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
     }
 
