@@ -148,10 +148,14 @@ BEGIN:`;
             jsonText = jsonMatch[0];
         }
 
-        // Strategy 2: Remove markdown code blocks
+        // Strategy 2: Remove markdown code blocks (```json ... ```)
         if (!jsonText) {
             console.log('→ Trying Strategy 2: Remove markdown...');
-            let cleaned = responseText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+            // Remove opening ```json or ``` and closing ```
+            let cleaned = responseText
+                .replace(/^```(?:json)?\s*/gi, '')  // Remove opening
+                .replace(/```\s*$/g, '')             // Remove closing
+                .trim();
             jsonMatch = cleaned.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
                 console.log('✓ Strategy 2: Found JSON after removing markdown');
@@ -159,20 +163,34 @@ BEGIN:`;
             }
         }
 
-        // Strategy 3: Extract between first [ and last ]
+        // Strategy 3: Extract from markdown code block
         if (!jsonText) {
-            console.log('→ Trying Strategy 3: First [ to last ]...');
+            console.log('→ Trying Strategy 3: Extract from markdown code block...');
+            // Match ```json ... ``` or ``` ... ```
+            const mdMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/i);
+            if (mdMatch && mdMatch[1]) {
+                const content = mdMatch[1].trim();
+                if (content.startsWith('[')) {
+                    jsonText = content;
+                    console.log('✓ Strategy 3: Extracted from markdown block');
+                }
+            }
+        }
+        
+        // Strategy 4: Extract between first [ and last ]
+        if (!jsonText) {
+            console.log('→ Trying Strategy 4: First [ to last ]...');
             const firstBracket = responseText.indexOf('[');
             const lastBracket = responseText.lastIndexOf(']');
             if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
                 jsonText = responseText.substring(firstBracket, lastBracket + 1);
-                console.log('✓ Strategy 3: Extracted between brackets');
+                console.log('✓ Strategy 4: Extracted between brackets');
             }
         }
 
-        // Strategy 4: Look for JSON after common phrases
+        // Strategy 5: Look for JSON after common phrases
         if (!jsonText) {
-            console.log('→ Trying Strategy 4: Look after common phrases...');
+            console.log('→ Trying Strategy 5: Look after common phrases...');
             const patterns = [
                 /(?:here'?s? the|here is the|output|result|localized content).*?\n*(\[[\s\S]*\])/i,
                 /(?:begin|start).*?\n*(\[[\s\S]*\])/i,
@@ -183,7 +201,7 @@ BEGIN:`;
                 const match = responseText.match(pattern);
                 if (match && match[1]) {
                     jsonText = match[1];
-                    console.log('✓ Strategy 4: Found JSON after phrase');
+                    console.log('✓ Strategy 5: Found JSON after phrase');
                     break;
                 }
             }
