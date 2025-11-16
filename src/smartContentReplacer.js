@@ -197,61 +197,79 @@ BEGIN:`;
     async processHtml(originalHtml, targetConfig) {
         const startTime = Date.now();
 
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🚀 Smart Content Replacer - Starting');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        try {
+            console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🚀 Smart Content Replacer - Starting');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-        // Step 1: Extract text
-        const textMap = this.extractTextContent(originalHtml);
+            // Step 1: Extract text
+            console.log('Step 1: Extracting text content...');
+            const textMap = this.extractTextContent(originalHtml);
 
-        if (textMap.size === 0) {
-            throw new Error('No text content found to localize');
+            if (textMap.size === 0) {
+                throw new Error('No text content found to localize');
+            }
+
+            console.log(`✅ Found ${textMap.size} text items to localize`);
+
+            // Step 2: Build prompt
+            console.log('\nStep 2: Building localization prompt...');
+            const prompt = this.buildPrompt(textMap, targetConfig);
+            
+            const promptSize = (Buffer.byteLength(prompt, 'utf8') / 1024).toFixed(1);
+            console.log(`✅ Prompt size: ${promptSize}KB (much smaller than full HTML!)`);
+
+            // Step 3: Send to AI
+            console.log(`\nStep 3: Sending to ${this.model}...`);
+            console.log('⏳ This should take 10-30 seconds...');
+
+            const aiStartTime = Date.now();
+            const response = await generateText(
+                prompt,
+                'You are a localization expert. Return ONLY a JSON array with no additional text.',
+                {
+                    model: this.model,
+                    maxTokens: this.maxTokens,
+                    temperature: 0.3
+                }
+            );
+            const aiDuration = ((Date.now() - aiStartTime) / 1000).toFixed(1);
+            console.log(`✅ AI responded in ${aiDuration}s`);
+            console.log(`Response length: ${response.length} characters`);
+
+            // Step 4: Parse response
+            console.log('\nStep 4: Parsing AI response...');
+            const localizedMap = this.parseResponse(response);
+            console.log(`✅ Parsed ${localizedMap.size} localized texts`);
+
+            // Step 5: Replace in HTML
+            console.log('\nStep 5: Replacing text in HTML...');
+            const finalHtml = this.replaceTextInHtml(originalHtml, textMap, localizedMap);
+
+            const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
+            console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log(`✅ Processing complete in ${totalDuration}s`);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+            return {
+                html: finalHtml,
+                metadata: {
+                    model: this.model,
+                    duration: `${totalDuration}s`,
+                    textsProcessed: textMap.size,
+                    replacementsMade: localizedMap.size
+                }
+            };
+        } catch (error) {
+            console.error('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.error('❌ ERROR in SmartContentReplacer:');
+            console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            console.error('Stack:', error.stack);
+            console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+            throw error;
         }
-
-        // Step 2: Build prompt
-        console.log('\n📝 Building localization prompt...');
-        const prompt = this.buildPrompt(textMap, targetConfig);
-        
-        const promptSize = (Buffer.byteLength(prompt, 'utf8') / 1024).toFixed(1);
-        console.log(`Prompt size: ${promptSize}KB (much smaller than full HTML!)`);
-
-        // Step 3: Send to AI
-        console.log(`\n🤖 Sending to ${this.model}...`);
-        console.log('⏳ This should take 10-30 seconds...');
-
-        const aiStartTime = Date.now();
-        const response = await generateText(
-            prompt,
-            'You are a localization expert. Return ONLY a JSON array with no additional text.',
-            {
-                model: this.model,
-                maxTokens: this.maxTokens,
-                temperature: 0.3
-            }
-        );
-        const aiDuration = ((Date.now() - aiStartTime) / 1000).toFixed(1);
-        console.log(`✅ AI responded in ${aiDuration}s`);
-
-        // Step 4: Parse response
-        const localizedMap = this.parseResponse(response);
-
-        // Step 5: Replace in HTML
-        const finalHtml = this.replaceTextInHtml(originalHtml, textMap, localizedMap);
-
-        const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`✅ Processing complete in ${totalDuration}s`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
-        return {
-            html: finalHtml,
-            metadata: {
-                model: this.model,
-                duration: `${totalDuration}s`,
-                textsProcessed: textMap.size,
-                replacementsMade: localizedMap.size
-            }
-        };
     }
 }
 
