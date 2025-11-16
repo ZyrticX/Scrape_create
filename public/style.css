@@ -266,14 +266,14 @@ input[type="checkbox"] {
 
 .status.success {
     background: hsl(142.1 76.2% 95%);
-    color: hsl(142.1 76.2% 25%);
+    color: hsl(142.1 76.2% 25%) !important;
     border-color: hsl(142.1 76.2% 85%);
 }
 
 .status.error {
-    background: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
-    border-color: hsl(var(--destructive) / 0.3);
+    background: hsl(0 84.2% 95%);
+    color: hsl(0 84.2% 35%) !important;
+    border-color: hsl(0 84.2% 75%);
 }
 
 .progress-bar {

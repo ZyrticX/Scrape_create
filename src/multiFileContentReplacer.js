@@ -206,11 +206,12 @@ BEGIN NOW - Start with <output> tag!`;
             return responseText.trim();
         }
         
-        // Log first 500 chars for debugging
-        console.error('❌ Could not parse response. First 500 chars:');
-        console.error(responseText.substring(0, 500));
+        // Log for debugging
+        console.error('❌ Could not parse response');
+        console.error('First 500 chars:', responseText.substring(0, 500));
+        console.error('Last 500 chars:', responseText.substring(Math.max(0, responseText.length - 500)));
         
-        throw new Error('AI response missing <output> tags and no valid HTML found. Please check the model output format.');
+        throw new Error(`AI returned invalid format. Response length: ${responseText.length} chars. Try a different model (Claude Sonnet 4 recommended) or check if HTML is too large.`);
     }
 
     /**
@@ -252,19 +253,29 @@ BEGIN NOW - Start with <output> tag!`;
         
         const startTime = Date.now();
         
-        const updatedHtml = await generateText(
-            prompt,
-            'You are a professional content localization expert. You MUST wrap your output in <output> tags. Follow all instructions exactly.',
-            {
-                model: this.model,
-                maxTokens: this.maxTokens,
-                temperature: 0.2  // Lower temperature for more consistent formatting
-            }
-        );
+        let updatedHtml;
+        try {
+            updatedHtml = await generateText(
+                prompt,
+                'You are a professional content localization expert. You MUST wrap your output in <output> tags. Follow all instructions exactly.',
+                {
+                    model: this.model,
+                    maxTokens: this.maxTokens,
+                    temperature: 0.2  // Lower temperature for more consistent formatting
+                }
+            );
+        } catch (apiError) {
+            console.error('❌ API Error:', apiError);
+            throw new Error(`AI API failed: ${apiError.message}. Try a different model.`);
+        }
         
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`✅ Received response in ${duration}s`);
         console.log(`📊 Response size: ${updatedHtml.length} characters`);
+        
+        // Log the first and last 200 chars for debugging
+        console.log('📝 Response preview (first 200 chars):', updatedHtml.substring(0, 200));
+        console.log('📝 Response preview (last 200 chars):', updatedHtml.substring(Math.max(0, updatedHtml.length - 200)));
         
         console.log('\n✍️  Step 5: Parsing response...');
         const parsedHtml = this.parseResponse(updatedHtml);

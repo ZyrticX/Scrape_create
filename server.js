@@ -398,6 +398,8 @@ app.post('/api/generate-variant-multi', async (req, res) => {
             imageModel: imageModel || 'black-forest-labs/flux-pro'
         });
 
+        console.log(`📊 Template HTML size: ${(template.originalHtml.length / 1024).toFixed(1)}KB`);
+        
         const result = await replacer.processHtml(
             template.originalHtml,
             {
@@ -409,6 +411,8 @@ app.post('/api/generate-variant-multi', async (req, res) => {
             },
             template.url
         );
+        
+        console.log(`✅ Processing completed successfully`);
 
         // Save variant HTML
         await fs.writeFile(
@@ -456,7 +460,16 @@ app.post('/api/generate-variant-multi', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error in Multi-File Cursor:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack?.substring(0, 500)
+        });
+        
+        // Return more detailed error message
+        res.status(500).json({ 
+            error: error.message,
+            details: 'Check server logs for more information. Try using a different model or reducing HTML size.'
+        });
     }
 });
 
