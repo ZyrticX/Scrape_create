@@ -163,17 +163,23 @@ BEGIN:`;
             }
         }
 
-        // Strategy 3: Extract from markdown code block
+        // Strategy 3: Extract from markdown code block (handles newlines)
         if (!jsonText) {
             console.log('→ Trying Strategy 3: Extract from markdown code block...');
-            // Match ```json ... ``` or ``` ... ```
-            const mdMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/i);
-            if (mdMatch && mdMatch[1]) {
-                const content = mdMatch[1].trim();
-                if (content.startsWith('[')) {
-                    jsonText = content;
-                    console.log('✓ Strategy 3: Extracted from markdown block');
-                }
+            // Remove everything before opening code fence and after closing fence
+            let cleaned = responseText;
+            
+            // Remove opening fence (```json or ```) and everything before it
+            cleaned = cleaned.replace(/^[\s\S]*?```(?:json)?[\s\n]*/i, '');
+            
+            // Remove closing fence (```) and everything after it
+            cleaned = cleaned.replace(/[\s\n]*```[\s\S]*$/i, '');
+            
+            // Now try to find JSON array
+            const trimmed = cleaned.trim();
+            if (trimmed.startsWith('[') && trimmed.includes(']')) {
+                jsonText = trimmed;
+                console.log('✓ Strategy 3: Extracted from markdown block');
             }
         }
         
