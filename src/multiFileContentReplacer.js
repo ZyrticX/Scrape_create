@@ -168,7 +168,7 @@ Example Response:
 </html>
 </output>
 
-BEGIN NOW - Start with <output> tag!
+BEGIN NOW - Start with <output> tag!`;
 
         return prompt;
     }
