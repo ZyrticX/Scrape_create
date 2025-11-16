@@ -144,7 +144,62 @@ export function getRecommendedImageModels() {
     ];
 }
 
+// ========================================
+// Multi-File Cursor Models (NEW - added for Multi-File feature)
+// ========================================
 
+export const MULTI_FILE_MODELS = [
+    {
+        id: 'anthropic/claude-sonnet-4',
+        name: 'Claude Sonnet 4 (Recommended)',
+        contextWindow: 200000,
+        recommended: true
+    },
+    {
+        id: 'anthropic/claude-opus-4',
+        name: 'Claude Opus 4 (Premium)',
+        contextWindow: 200000
+    },
+    {
+        id: 'qwen/qwen-2.5-vl-32b',
+        name: 'Qwen2.5-VL-32B (Vision Support)',
+        contextWindow: 32768,
+        vision: true
+    },
+    {
+        id: 'openai/gpt-4o',
+        name: 'GPT-4 Omni',
+        contextWindow: 128000,
+        vision: true
+    },
+    {
+        id: 'google/gemini-pro-1.5',
+        name: 'Gemini Pro 1.5',
+        contextWindow: 2000000
+    }
+];
 
+export const IMAGE_GENERATION_MODELS = [
+    {
+        id: 'black-forest-labs/flux-pro',
+        name: 'FLUX Pro (Recommended)',
+        recommended: true
+    },
+    {
+        id: 'stability-ai/stable-diffusion-xl',
+        name: 'Stable Diffusion XL'
+    },
+    {
+        id: 'openai/dall-e-3',
+        name: 'DALL-E 3'
+    }
+];
 
+export function getMultiFileModels() {
+    return MULTI_FILE_MODELS;
+}
+
+export function getImageGenerationModels() {
+    return IMAGE_GENERATION_MODELS;
+}
 

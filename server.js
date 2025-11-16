@@ -15,7 +15,8 @@ import { generateSimpleVariant } from './src/simpleVariantGenerator.js';
 import { saveVariant, listVariants, getVariant } from './src/variantManager.js';
 import { createVariantZip } from './src/zipGenerator.js';
 import { processHTML } from './src/htmlProcessor.js';
-import { getTextModels, getImageModels } from './src/openRouterModels.js';
+import { getTextModels, getImageModels, getMultiFileModels, getImageGenerationModels } from './src/openRouterModels.js';
+import { MultiFileContentReplacer } from './src/multiFileContentReplacer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -336,6 +337,125 @@ app.get('/api/variants', async (req, res) => {
         const variants = await listVariants();
         res.json(variants);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ========================================
+// Multi-File Cursor API Endpoints (NEW)
+// ========================================
+
+// Get multi-file models list
+app.get('/api/models/multi-file', (req, res) => {
+    res.json(getMultiFileModels());
+});
+
+// Get image generation models list
+app.get('/api/models/image-generation', (req, res) => {
+    res.json(getImageGenerationModels());
+});
+
+// Generate variant using Multi-File Cursor (NEW METHOD)
+app.post('/api/generate-variant-multi', async (req, res) => {
+    try {
+        const {
+            templateId,
+            targetLanguage,
+            targetCountry,
+            writingStyle,
+            targetAudience,
+            additionalInstructions,
+            model,
+            generateImages,
+            imageModel
+        } = req.body;
+
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🚀 Multi-File Cursor - Variant Generation');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`Template: ${templateId}`);
+        console.log(`Language: ${targetLanguage} | Country: ${targetCountry}`);
+        console.log(`Model: ${model || 'claude-sonnet-4'}`);
+        console.log(`Generate Images: ${generateImages || false}`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+        // Load template
+        const template = await getTemplate(templateId);
+        if (!template) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+
+        // Create variant directory
+        const variantId = `multi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const variantDir = path.join(__dirname, 'variants', variantId);
+        await fs.mkdir(variantDir, { recursive: true });
+
+        // Process with Multi-File Cursor
+        const replacer = new MultiFileContentReplacer({
+            model: model || 'anthropic/claude-sonnet-4',
+            maxTokens: 16000,
+            generateImages: generateImages || false,
+            imageModel: imageModel || 'black-forest-labs/flux-pro'
+        });
+
+        const result = await replacer.processHtml(
+            template.originalHtml,
+            {
+                targetLanguage,
+                targetCountry,
+                writingStyle,
+                targetAudience,
+                additionalInstructions
+            },
+            template.url
+        );
+
+        // Save variant HTML
+        await fs.writeFile(
+            path.join(variantDir, 'index.html'),
+            result.html,
+            'utf-8'
+        );
+
+        // Save metadata
+        const metadata = {
+            variantId,
+            templateId,
+            originalUrl: template.url,
+            targetLanguage,
+            targetCountry,
+            writingStyle,
+            targetAudience,
+            model: result.metadata.model,
+            generateImages: generateImages || false,
+            imageModel: generateImages ? imageModel : null,
+            sizeKB: result.metadata.sizeKB,
+            estimatedTokens: result.metadata.estimatedTokens,
+            imagesFound: result.metadata.imagesFound,
+            duration: result.metadata.duration,
+            generatedAt: new Date().toISOString(),
+            method: 'multi-file-cursor'
+        };
+
+        await fs.writeFile(
+            path.join(variantDir, 'metadata.json'),
+            JSON.stringify(metadata, null, 2),
+            'utf-8'
+        );
+
+        console.log('\n✅ Variant created successfully!');
+        console.log(`📁 Variant ID: ${variantId}`);
+        console.log(`⏱️  Duration: ${result.metadata.duration}`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+
+        res.json({
+            success: true,
+            variantId,
+            metadata
+        });
+
+    } catch (error) {
+        console.error('❌ Error in Multi-File Cursor:', error);
         res.status(500).json({ error: error.message });
     }
 });

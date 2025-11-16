@@ -39,6 +39,8 @@ Scrape_create/
 │   ├── simpleArticleRewriter.js   # שכתוב תוכן עם AI
 │   ├── simpleContentReplacer.js   # החלפת תוכן ב-HTML
 │   │
+│   ├── multiFileContentReplacer.js # 🆕 Multi-File Cursor - עיבוד HTML מקיף ב-1 קריאת AI
+│   │
 │   ├── openRouterClient.js        # תקשורת עם OpenRouter API
 │   ├── openRouterModels.js        # רשימת מודלים זמינים
 │   ├── promptBuilder.js           # בניית Prompts ל-AI
@@ -163,6 +165,27 @@ URL → scraper.js → HTML → contextAnalyzer → מבנה + הקשר
 - מהיר יותר
 - זול יותר
 - עובד טוב יותר!
+
+---
+
+**🆕 תהליך יצירת וריאנט (Multi-File Cursor):**
+```
+1. Analyze → בודק גודל HTML, מחלץ תמונות (אופציונלי)
+2. Build Prompt → בונה prompt מקיף עם כל ה-HTML והדרישות
+3. AI Processing → שולח הכל ל-AI בקריאה אחת (1 API call)
+4. Parse & Validate → מפענח תשובה ומאמת HTML
+5. Save → שומר HTML מעודכן + metadata מורחב
+```
+
+**השוואה: Simple vs Multi-File Cursor**
+| תכונה | Simple | Multi-File Cursor |
+|-------|---------|-------------------|
+| API Calls | 2-3 | 1 |
+| מהירות | מהיר ✅ | בינוני |
+| עלות | זול 💰 | בינוני 💰💰 |
+| טיפול בתמונות | ❌ | ✅ (אופציונלי) |
+| קוד מוטמע | ❌ | ✅ |
+| מצב | מוכח ✅ | ניסיוני 🧪 |
 
 ---
 
@@ -404,6 +427,32 @@ APP_URL=http://65.21.192.187:3000    # כתובת השרת (לרפרר)
 - בעיות עם API? בדוק `openRouterClient.js`
 - בעיות עם חילוץ תוכן? בדוק `simpleArticleExtractor.js`
 - בעיות עם החלפה? בדוק `simpleContentReplacer.js`
+
+---
+
+---
+
+## 🆕 Multi-File Cursor - מה חדש?
+
+### **קבצים חדשים:**
+- `src/multiFileContentReplacer.js` - לוגיקת Multi-File Cursor
+- מודלים חדשים ב-`openRouterModels.js`:
+  - Claude Sonnet 4 (מומלץ) ✅
+  - Claude Opus 4
+  - Qwen2.5-VL-32B (תמיכה בתמונות) 🖼️
+  - GPT-4 Omni
+  - Gemini Pro 1.5
+
+### **API Endpoints חדשים:**
+- `GET /api/models/multi-file` - רשימת מודלים ל-Multi-File
+- `GET /api/models/image-generation` - רשימת מודלים ליצירת תמונות
+- `POST /api/generate-variant-multi` - יצירת וריאנט עם Multi-File Cursor
+
+### **ממשק משתמש חדש:**
+- Dropdown לבחירה בין Simple ו-Multi-File Cursor
+- בחירת מודל AI ייעודי
+- אופציה ליצירת תמונות חדשות
+- סטטיסטיקות מורחבות (גודל, tokens, עלות)
 
 ---
 

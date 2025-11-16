@@ -1,6 +1,8 @@
 let currentTemplateId = null;
 let availableTextModels = [];
 let availableImageModels = [];
+let multiFileModels = [];
+let imageGenerationModels = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -97,6 +99,9 @@ function setupEventListeners() {
     document.getElementById('generateImagesCheck').addEventListener('change', (e) => {
         document.getElementById('imageModelGroup').style.display = e.target.checked ? 'block' : 'none';
     });
+    // NEW: Multi-File Cursor event listeners
+    document.getElementById('methodSelect').addEventListener('change', handleMethodChange);
+    document.getElementById('multiGenerateImagesCheck').addEventListener('change', handleMultiImageCheckChange);
     document.getElementById('generateBtn').addEventListener('click', handleGenerate);
 }
 
@@ -295,6 +300,13 @@ async function handleScrape() {
 
 // Handle generate
 async function handleGenerate() {
+    // NEW: Route to appropriate method
+    const method = document.getElementById('methodSelect').value;
+    if (method === 'multi') {
+        return await handleGenerateMulti();
+    }
+
+    // EXISTING: Simple method continues below
     if (!currentTemplateId) {
         showStatus('generateStatus', 'Please select a template first', 'error');
         return;
@@ -423,6 +435,135 @@ function showStatus(elementId, message, type) {
     element.style.display = 'block';
 }
 
+// ========================================
+// Multi-File Cursor Functions (NEW)
+// ========================================
 
+// Load multi-file models
+async function loadMultiFileModels() {
+    try {
+        const response = await fetch('/api/models/multi-file');
+        multiFileModels = await response.json();
 
+        const select = document.getElementById('multiModelSelect');
+        select.innerHTML = multiFileModels.map(model => `
+            <option value="${model.id}" ${model.recommended ? 'selected' : ''}>
+                ${model.name}
+            </option>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading multi-file models:', error);
+    }
+}
+
+// Load image generation models
+async function loadImageGenerationModels() {
+    try {
+        const response = await fetch('/api/models/image-generation');
+        imageGenerationModels = await response.json();
+
+        const select = document.getElementById('multiImageModelSelect');
+        select.innerHTML = imageGenerationModels.map(model => `
+            <option value="${model.id}" ${model.recommended ? 'selected' : ''}>
+                ${model.name}
+            </option>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading image models:', error);
+    }
+}
+
+// Handle method selection change
+function handleMethodChange() {
+    const method = document.getElementById('methodSelect').value;
+    const simpleOptions = document.getElementById('simpleMethodOptions');
+    const multiOptions = document.getElementById('multiFileOptions');
+
+    if (method === 'multi') {
+        simpleOptions.style.display = 'none';
+        multiOptions.style.display = 'block';
+        loadMultiFileModels();
+        loadImageGenerationModels();
+    } else {
+        simpleOptions.style.display = 'block';
+        multiOptions.style.display = 'none';
+    }
+}
+
+// Handle image generation checkbox for multi-file
+function handleMultiImageCheckChange() {
+    const checked = document.getElementById('multiGenerateImagesCheck').checked;
+    document.getElementById('multiImageModelGroup').style.display = 
+        checked ? 'block' : 'none';
+}
+
+// Generate variant with Multi-File Cursor
+async function handleGenerateMulti() {
+    const templateId = document.getElementById('templateSelect').value;
+    const targetLanguage = document.getElementById('targetLanguage').value;
+    const targetCountry = document.getElementById('targetCountry').value;
+    const model = document.getElementById('multiModelSelect').value;
+    const generateImages = document.getElementById('multiGenerateImagesCheck').checked;
+    const imageModel = generateImages ? document.getElementById('multiImageModelSelect').value : null;
+    const numVariants = parseInt(document.getElementById('numVariants').value);
+
+    if (!templateId) {
+        showStatus('generateStatus', 'Please select a template', 'error');
+        return;
+    }
+
+    showProgress(true, 0, 'Initializing Multi-File Cursor...');
+    document.getElementById('generateBtn').disabled = true;
+
+    const results = [];
+    const errors = [];
+
+    for (let i = 1; i <= numVariants; i++) {
+        try {
+            showProgress(true, (i - 1) / numVariants * 100, 
+                `Generating variant ${i}/${numVariants} with Multi-File Cursor...`);
+
+            const response = await fetch('/api/generate-variant-multi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    templateId,
+                    targetLanguage,
+                    targetCountry,
+                    writingStyle: 'professional and friendly',
+                    targetAudience: 'general users',
+                    model,
+                    generateImages,
+                    imageModel
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                results.push(result);
+                console.log(`✅ Variant ${i} created:`, result.variantId);
+            } else {
+                throw new Error(result.error || 'Unknown error');
+            }
+        } catch (error) {
+            console.error(`Error generating variant ${i}:`, error);
+            errors.push(`Variant ${i}: ${error.message}`);
+        }
+    }
+
+    showProgress(true, 100, 'Complete!');
+    document.getElementById('generateBtn').disabled = false;
+
+    if (results.length > 0) {
+        showStatus('generateStatus', 
+            `✅ Created ${results.length} variant(s)${errors.length > 0 ? ` (${errors.length} failed)` : ''}`, 
+            'success');
+        await loadVariants();
+    } else {
+        showStatus('generateStatus', `❌ All variants failed: ${errors.join('; ')}`, 'error');
+    }
+
+    setTimeout(() => showProgress(false), 2000);
+}
 

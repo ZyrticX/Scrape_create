@@ -111,11 +111,26 @@
                     </select>
                 </div>
 
+                <!-- NEW: Method Selection -->
                 <div class="form-group">
-                    <label for="textModelSelect">Text Generation Model:</label>
-                    <select id="textModelSelect">
-                        <option value="">Loading models...</option>
+                    <label for="methodSelect">Generation Method:</label>
+                    <select id="methodSelect">
+                        <option value="simple">Simple (Fast - proven, 2-3 API calls)</option>
+                        <option value="multi">Multi-File Cursor (Complete - experimental, 1 API call)</option>
                     </select>
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Simple method is stable and fast. Multi-File is more comprehensive but newer.
+                    </small>
+                </div>
+
+                <!-- Simple Method Options (default visible) -->
+                <div id="simpleMethodOptions">
+                    <div class="form-group">
+                        <label for="textModelSelect">Text Generation Model:</label>
+                        <select id="textModelSelect">
+                            <option value="">Loading models...</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -130,6 +145,36 @@
                     <select id="imageModelSelect">
                         <option value="">Loading models...</option>
                     </select>
+                </div>
+                </div>
+
+                <!-- NEW: Multi-File Cursor specific options (hidden by default) -->
+                <div id="multiFileOptions" style="display: none;">
+                    <div class="form-group">
+                        <label for="multiModelSelect">AI Model:</label>
+                        <select id="multiModelSelect">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="multiGenerateImagesCheck">
+                            Generate New Images (slower, higher cost)
+                        </label>
+                    </div>
+
+                    <div id="multiImageModelGroup" style="display: none;">
+                        <div class="form-group">
+                            <label for="multiImageModelSelect">Image Model:</label>
+                            <select id="multiImageModelSelect">
+                                <option value="">Loading...</option>
+                            </select>
+                            <small style="color: #666; display: block; margin-top: 5px;">
+                                Recommended: FLUX Pro
+                            </small>
+                        </div>
+                    </div>
                 </div>
 
                 <button id="generateBtn" class="btn btn-success" style="margin-top: 20px; font-size: 18px; padding: 15px 40px;">

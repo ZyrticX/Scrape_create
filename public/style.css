@@ -315,3 +315,148 @@ header h1 {
     100% { transform: rotate(360deg); }
 }
 
+/* ========================================
+   Multi-File Cursor Styles (NEW)
+   ======================================== */
+
+#multiFileOptions {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
+
+#multiFileOptions small {
+    color: #666;
+    font-size: 12px;
+}
+
+#multiFileOptions .form-group {
+    margin-bottom: 15px;
+}
+
+#multiImageModelGroup {
+    margin-left: 20px;
+    padding: 10px;
+    background: #fff;
+    border-left: 3px solid #007bff;
+}
+
+#simpleMethodOptions {
+    transition: all 0.3s ease;
+}
+
+/* Method selector styling */
+#methodSelect {
+    font-weight: 600;
+    padding: 10px;
+    border: 2px solid #007bff;
+}
+
+#methodSelect option {
+    padding: 10px;
+}
+
+/* Highlight experimental features */
+#multiFileOptions {
+    position: relative;
+}
+
+#multiFileOptions::before {
+    content: "🧪 EXPERIMENTAL";
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: #ffc107;
+    color: #000;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Progress steps for multi-file */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 3px solid #e0e0e0;
+    position: relative;
+}
+
+.progress-step.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.progress-step.complete {
+    border-bottom-color: #28a745;
+    color: #28a745;
+}
+
+.progress-step.complete::after {
+    content: "✓";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Stats display for variant metadata */
+.variant-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.variant-stat {
+    text-align: center;
+}
+
+.variant-stat-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.variant-stat-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Model badges */
+.model-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: 5px;
+}
+
+.model-badge.recommended {
+    background: #28a745;
+    color: white;
+}
+
+.model-badge.vision {
+    background: #17a2b8;
+    color: white;
+}
+
+.model-badge.experimental {
+    background: #ffc107;
+    color: black;
+}

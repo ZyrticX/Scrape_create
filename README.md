@@ -51,8 +51,11 @@ npm start
 1. בחירת template קיים או יצירת template חדש מ-URL
 2. בחירת sections לשנות
 3. בחירת שפה ומדינה יעד
-4. יצירת ורסיה עם AI (Gemini Pro לטקסט, Nana Banana לתמונות)
-5. תצוגה מקדימה והורדת ZIP
+4. **🆕 בחירת שיטת יצירה:**
+   - **Simple** - מהיר, מוכח, 2-3 API calls (מומלץ למתחילים)
+   - **Multi-File Cursor** - מקיף, ניסיוני, 1 API call (תומך בתמונות)
+5. בחירת מודל AI (Claude, GPT-4, Qwen, Gemini)
+6. תצוגה מקדימה והורדת ZIP
 
 ### דרך CLI
 
@@ -144,7 +147,15 @@ node src/main.js --generate templates/lander_en_protrader_za_selfhosted_v3_*.jso
 - ✅ זיהוי אוטומטי של תוכן דינמי
 
 ### יצירת ורסיות עם AI
-- ✅ יצירת טקסטים חדשים עם Gemini Pro דרך OpenRouter
+- ✅ **שתי שיטות יצירה:**
+  - **Simple** - מהיר, מוכח, 2-3 API calls
+  - **🆕 Multi-File Cursor** - מקיף, ניסיוני, 1 API call
+- ✅ תמיכה במודלים מרובים:
+  - Claude Sonnet 4 & Opus 4
+  - GPT-4 Omni
+  - Qwen2.5-VL-32B (תמיכה בתמונות) 🖼️
+  - Gemini Pro 1.5
+- ✅ יצירת טקסטים חדשים עם AI דרך OpenRouter
 - ✅ יצירת תמונות חדשות עם Nana Banana דרך OpenRouter
 - ✅ שמירה על קונטקסט וסגנון המקור
 - ✅ Core Guidelines מובנים (סיוע מהחברה + הפקדת כסף)
