@@ -139,8 +139,22 @@ export async function generateText(prompt, systemMessage = null, options = {}) {
                         result = JSON.parse(responseText);
                     } catch (parseError) {
                         console.error('Failed to parse JSON response:', parseError.message);
+                        console.error('Response length:', responseText.length);
                         console.error('Response text (first 500 chars):', responseText.substring(0, 500));
+                        console.error('Response text (last 500 chars):', responseText.substring(Math.max(0, responseText.length - 500)));
+                        
+                        // Check if response looks truncated
+                        if (responseText.length > 0 && !responseText.trim().endsWith('}') && !responseText.trim().endsWith(']')) {
+                            throw new Error(`Response appears to be truncated (ends with: "${responseText.substring(Math.max(0, responseText.length - 50))}"). Try reducing chunk size or using a model with larger context window.`);
+                        }
+                        
                         throw new Error(`Invalid JSON response from API: ${parseError.message}. Response may be incomplete or truncated.`);
+                    }
+
+                    // Validate response structure
+                    if (!result.choices || !Array.isArray(result.choices) || result.choices.length === 0) {
+                        console.error('Invalid response structure:', JSON.stringify(result, null, 2).substring(0, 500));
+                        throw new Error('Invalid response structure from API - missing choices array');
                     }
 
                     return result;
