@@ -3,188 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Article Variant Generator</title>
+    <title>Web Scraper Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>AI Article Variant Generator</h1>
-            <p style="color: #666; margin-top: 10px;">Generate multiple article variants with different content, same design</p>
+    <div class="app">
+        <!-- Animated Background -->
+        <div class="bg-grid"></div>
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🕷️</span>
+                <h1>Web Scraper <span class="accent">Pro</span></h1>
+            </div>
+            <p class="tagline">Capture any website. Download everything. One click.</p>
         </header>
 
-        <!-- System Status Panel -->
-        <section class="status-panel" id="statusPanel">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
-                <span>🔧 System Status</span>
-                <button id="refreshStatusBtn" class="btn btn-secondary" style="margin-left: auto; padding: 5px 15px; font-size: 14px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">Refresh</button>
-            </h3>
-            <div id="statusContent" style="display: grid; gap: 15px;">
-                <div style="text-align: center; color: rgba(255,255,255,0.9);">
-                    <div class="spinner"></div>
-                    <p>Checking system status...</p>
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Scraper Card -->
+            <section class="card scraper-card">
+                <div class="card-header">
+                    <h2>
+                        <span class="icon">🌐</span>
+                        New Scrape
+                    </h2>
                 </div>
-            </div>
-        </section>
-
-        <main>
-            <!-- Template Selection -->
-            <section class="step">
-                <h2>1. Select Template</h2>
-                
-                <div class="form-group">
-                    <label for="templateSelect">Choose Template:</label>
-                    <select id="templateSelect">
-                        <option value="">Loading templates...</option>
-                    </select>
-                    <div style="margin-top: 10px; display: none; flex-wrap: wrap; gap: 10px;" id="templateActions">
-                        <button id="previewTemplateBtn" class="btn btn-secondary">Preview Template</button>
-                        <button id="downloadTemplateBtn" class="btn btn-primary">Download ZIP</button>
-                        <button id="viewOriginalBtn" class="btn btn-secondary">View Original HTML</button>
-                        <button id="viewFilesBtn" class="btn btn-secondary">Access Files</button>
+                <div class="card-body">
+                    <div class="input-group">
+                        <label for="urlInput">Website URL</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔗</span>
+                            <input 
+                                type="url" 
+                                id="urlInput" 
+                                placeholder="https://example.com"
+                                autocomplete="off"
+                            >
+                        </div>
                     </div>
-                    <div id="templateFilesContainer" style="margin-top: 15px; display: none; padding: 15px; background: #f5f5f5; border-radius: 5px;">
-                        <h4 style="margin-top: 0;">Template Files:</h4>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="margin: 5px 0;">
-                                <a id="originalHtmlLink" href="#" target="_blank" style="color: #007bff;">📄 original.html</a>
-                            </li>
-                            <li style="margin: 5px 0;">
-                                <a id="templateJsonLink" href="#" target="_blank" style="color: #007bff;">📋 template.json</a>
-                            </li>
-                            <li style="margin: 5px 0;">
-                                <a id="contextJsonLink" href="#" target="_blank" style="color: #007bff;">📋 context.json</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div id="templatePreviewContainer" style="margin-top: 20px; display: none;">
-                    <h3>Template Preview:</h3>
-                    <iframe id="templatePreviewFrame" style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 5px;"></iframe>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <strong>Or create new template from URL:</strong>
-                    <div style="margin-top: 10px; display: flex; gap: 10px;">
-                        <input type="url" id="urlInput" placeholder="https://example.com/article" style="flex: 1;">
-                        <button id="scrapeBtn" class="btn btn-primary">Scrape & Save</button>
+                    <div class="input-group">
+                        <label for="maxPages">Max Pages</label>
+                        <div class="range-wrapper">
+                            <input 
+                                type="range" 
+                                id="maxPages" 
+                                min="1" 
+                                max="100" 
+                                value="50"
+                            >
+                            <span id="maxPagesValue" class="range-value">50</span>
+                        </div>
                     </div>
-                    <div id="scrapeStatus" class="status"></div>
+
+                    <button id="scrapeBtn" class="btn btn-primary">
+                        <span class="btn-icon">🚀</span>
+                        Start Scraping
+                    </button>
                 </div>
             </section>
 
-            <!-- Generation Settings -->
-            <section class="step" id="settingsSection" style="display: none;">
-                <h2>2. Generation Settings</h2>
-
-                <div class="form-group">
-                    <label for="numVariants">Number of Article Variants:</label>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" id="numVariants" min="1" max="10" value="1" style="flex: 1;">
-                        <span id="numVariantsValue" style="font-weight: bold; min-width: 30px;">1</span>
-                    </div>
+            <!-- Progress Card (Hidden by default) -->
+            <section class="card progress-card" id="progressCard" style="display: none;">
+                <div class="card-header">
+                    <h2>
+                        <span class="icon spinner">⚙️</span>
+                        <span id="progressTitle">Scraping in Progress</span>
+                    </h2>
                 </div>
-
-                <div class="form-group">
-                    <label for="languageSelect">Article Language:</label>
-                    <select id="languageSelect">
-                        <option value="English">English</option>
-                        <option value="Hebrew">Hebrew</option>
-                        <option value="Spanish">Spanish</option>
-                        <option value="French">French</option>
-                        <option value="German">German</option>
-                        <option value="Arabic">Arabic</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="countrySelect">Target Country:</label>
-                    <select id="countrySelect">
-                        <option value="USA">United States</option>
-                        <option value="Israel">Israel</option>
-                        <option value="South Africa">South Africa</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="Germany">Germany</option>
-                        <option value="France">France</option>
-                        <option value="Spain">Spain</option>
-                    </select>
-                </div>
-
-                <!-- Multi-File Cursor Options -->
-                <div id="multiFileOptions">
-                    <div class="form-group">
-                        <label for="multiModelSelect">🧠 AI Model:</label>
-                        <select id="multiModelSelect">
-                            <option value="">Loading models...</option>
-                        </select>
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            💡 <strong>Recommended:</strong> Claude Sonnet 4 for best results<br>
-                            ⚠️ <strong>Note:</strong> If generation fails, try GPT-4 Omni or Gemini Pro
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="multiGenerateImagesCheck">
-                            🖼️ Generate New Images (slower, higher cost)
-                        </label>
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            ✨ AI will create culturally appropriate images for target audience
-                        </small>
-                    </div>
-
-                    <div id="multiImageModelGroup" style="display: none;">
-                        <div class="form-group">
-                            <label for="multiImageModelSelect">🎨 Image Generation Model:</label>
-                            <select id="multiImageModelSelect">
-                                <option value="">Loading models...</option>
-                            </select>
-                            <small style="color: #666; display: block; margin-top: 5px;">
-                                ⚡ Recommended: FLUX Pro
-                            </small>
+                <div class="card-body">
+                    <div class="progress-info">
+                        <div class="progress-url" id="progressUrl"></div>
+                        <div class="progress-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="pagesCount">0</span>
+                                <span class="stat-label">Pages</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="resourcesCount">0</span>
+                                <span class="stat-label">Resources</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="statusText">Starting</span>
+                                <span class="stat-label">Status</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <button id="generateBtn" class="btn btn-success" style="margin-top: 20px; font-size: 16px; padding: 12px 40px;">
-                    🚀 Generate Variants with AI
-                </button>
-                <div id="generateStatus" class="status"></div>
-                <div id="progressContainer" style="display: none; margin-top: 20px;">
                     <div class="progress-bar">
-                        <div id="progressBar" class="progress-fill"></div>
+                        <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <div id="progressText" style="margin-top: 10px; text-align: center;"></div>
-                    <div id="progressDetails" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 13px; color: #666; border-left: 3px solid #3b82f6;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                            <span style="font-weight: 600;">💡 What's happening:</span>
-                        </div>
-                        <ul style="margin: 5px 0; padding-left: 20px; line-height: 1.8;">
-                            <li>AI is analyzing your HTML structure</li>
-                            <li>Localizing content to target language</li>
-                            <li>Preserving all design and functionality</li>
-                            <li>This process typically takes 30-90 seconds</li>
-                        </ul>
-                        <div style="margin-top: 10px; padding: 8px; background: white; border-radius: 4px; text-align: center;">
-                            <small>⏱️ <strong>Tip:</strong> The first generation might be slower. Be patient!</small>
-                        </div>
+                    <div class="progress-actions" id="progressActions" style="display: none;">
+                        <button id="downloadBtn" class="btn btn-success">
+                            <span class="btn-icon">📥</span>
+                            Download ZIP
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- Results -->
-            <section class="step" id="resultsSection" style="display: none;">
-                <h2>3. Generated Variants</h2>
-                <div id="variantsList"></div>
+            <!-- History Card -->
+            <section class="card history-card">
+                <div class="card-header">
+                    <h2>
+                        <span class="icon">📚</span>
+                        Scraped Sites
+                    </h2>
+                    <button id="refreshBtn" class="btn btn-ghost">
+                        <span class="btn-icon">🔄</span>
+                        Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="sitesList" class="sites-list">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
             </section>
         </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with Playwright & Node.js</p>
+        </footer>
     </div>
 
     <script src="app.js"></script>
 </body>
 </html>
-
-
-
-

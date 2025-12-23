@@ -5,19 +5,7 @@ import express from 'express';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import * as fs from 'fs/promises';
-import { scrapePage } from './src/scraper.js';
-import { analyzeContext } from './src/contextAnalyzer.js';
-import { extractStructure } from './src/structureExtractor.js';
-import { extractTextsBySections } from './src/textExtractor.js';
-import { saveTemplate, getAllTemplates, getTemplate } from './src/templateManager.js';
-import { generateVariant } from './src/variantGenerator.js';
-import { generateSimpleVariant } from './src/simpleVariantGenerator.js';
-import { saveVariant, listVariants, getVariant } from './src/variantManager.js';
-import { createVariantZip } from './src/zipGenerator.js';
-import { processHTML } from './src/htmlProcessor.js';
-import { getTextModels, getImageModels, getMultiFileModels, getImageGenerationModels } from './src/openRouterModels.js';
-import { MultiFileContentReplacer } from './src/multiFileContentReplacer.js';
-import { SmartContentReplacer } from './src/smartContentReplacer.js';
+import { scrapeFullSite } from './src/fullSiteScraper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,489 +13,213 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Store scraping jobs status
+const scrapingJobs = new Map();
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve template files (for browsing/downloading)
-app.use('/templates', express.static(path.join(__dirname, 'templates')));
+// Serve output files
+app.use('/output', express.static(path.join(__dirname, 'output')));
 
+// ========================================
 // API Routes
+// ========================================
 
-// Health check endpoint
-app.get('/api/health', async (req, res) => {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    
-    const health = {
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        server: 'running',
-        apiKey: apiKey ? 'configured' : 'missing',
-        apiKeyValid: false,
-        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'N/A',
-        envFileLoaded: process.env.OPENROUTER_API_KEY !== undefined
-    };
-
-    // Test OpenRouter API connection if key is present
-    if (apiKey) {
-        try {
-            // Test with actual chat completion (more reliable than just listing models)
-            const testResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'HTTP-Referer': process.env.APP_URL || 'http://localhost:3000',
-                    'X-Title': 'Health Check'
-                },
-                body: JSON.stringify({
-                    model: 'openai/gpt-3.5-turbo',
-                    messages: [{ role: 'user', content: 'test' }],
-                    max_tokens: 5
-                })
-            });
-            
-            if (testResponse.ok) {
-                health.apiKeyValid = true;
-                health.openRouter = 'connected';
-            } else {
-                const errorData = await testResponse.json().catch(() => ({}));
-                health.openRouter = 'error';
-                health.error = `API returned ${testResponse.status}: ${JSON.stringify(errorData)}`;
-                health.apiKeyValid = false;
-            }
-        } catch (error) {
-            health.openRouter = 'error';
-            health.error = error.message;
-        }
-    } else {
-        health.openRouter = 'no-key';
-    }
-
-    res.json(health);
+        server: 'Web Scraper Pro'
+    });
 });
 
-// Get available text generation models
-app.get('/api/models/text', async (req, res) => {
-    try {
-        const models = await getTextModels();
-        res.json(models);
-    } catch (error) {
-        console.error('Error fetching text models:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get available image generation models
-app.get('/api/models/image', async (req, res) => {
-    try {
-        const models = await getImageModels();
-        res.json(models);
-    } catch (error) {
-        console.error('Error fetching image models:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get all templates
-app.get('/api/templates', async (req, res) => {
-    try {
-        const templates = await getAllTemplates();
-        res.json(templates);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get a specific template
-app.get('/api/templates/:id', async (req, res) => {
-    try {
-        const template = await getTemplate(req.params.id);
-        if (!template) {
-            return res.status(404).json({ error: 'Template not found' });
-        }
-        res.json(template);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get template original HTML for viewing
-app.get('/api/templates/:id/view', async (req, res) => {
-    try {
-        const template = await getTemplate(req.params.id);
-        if (!template) {
-            return res.status(404).json({ error: 'Template not found' });
-        }
-        res.setHeader('Content-Type', 'text/html');
-        res.send(template.originalHtml);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get specific template file (template.json, context.json, or original.html)
-app.get('/api/templates/:id/file/:filename', async (req, res) => {
-    try {
-        const { id, filename } = req.params;
-        const allowedFiles = ['template.json', 'context.json', 'original.html'];
-        
-        if (!allowedFiles.includes(filename)) {
-            return res.status(400).json({ error: 'Invalid filename' });
-        }
-
-        const filePath = path.join(__dirname, 'templates', id, filename);
-        
-        // Check if file exists
-        await fs.access(filePath);
-        
-        // Set appropriate content type
-        const contentType = filename.endsWith('.html') ? 'text/html' : 'application/json';
-        res.setHeader('Content-Type', contentType);
-        
-        const content = await fs.readFile(filePath, 'utf-8');
-        res.send(content);
-    } catch (error) {
-        res.status(404).json({ error: 'File not found' });
-    }
-});
-
-// Download template as ZIP
-app.get('/api/templates/:id/download', async (req, res) => {
-    try {
-        const template = await getTemplate(req.params.id);
-        if (!template) {
-            return res.status(404).json({ error: 'Template not found' });
-        }
-
-        const zipPath = path.join(__dirname, 'templates', `${req.params.id}.zip`);
-        const metadata = {
-            templateId: req.params.id,
-            title: template.title,
-            url: template.url,
-            createdAt: template.createdAt || new Date().toISOString()
-        };
-        
-        // Use the original URL as baseUrl for resource downloads
-        const baseUrl = template.url || null;
-        await createVariantZip(template.originalHtml, zipPath, metadata, baseUrl);
-
-        res.download(zipPath, `template-${req.params.id}.zip`, (err) => {
-            if (err) {
-                console.error('Download error:', err);
-            }
-        });
-    } catch (error) {
-        console.error('Template ZIP creation error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Scrape a new URL and save as template
+// Start scraping job
 app.post('/api/scrape', async (req, res) => {
     try {
-        const { url } = req.body;
+        const { url, maxPages = 50 } = req.body;
+        
         if (!url) {
             return res.status(400).json({ error: 'URL is required' });
         }
 
-        // Scrape the page
-        const scrapedData = await scrapePage(url);
-        
-        // Analyze context
-        const context = analyzeContext(scrapedData.html, scrapedData.url, scrapedData.title);
-        
-        // Extract structure
-        const template = extractStructure(scrapedData.html, scrapedData.url, scrapedData.title);
-        
-        // Extract texts by sections
-        const extractedTexts = extractTextsBySections(scrapedData.html, context);
-        
-        // Process HTML
-        const processedHTML = processHTML(scrapedData.html, scrapedData.url);
-        
-        // Save template
-        const templateId = await saveTemplate({
-            url: scrapedData.url,
-            title: scrapedData.title,
-            template,
-            context: {
-                ...context,
-                sections: extractedTexts.summary,
-                availableSections: Object.keys(extractedTexts.sections).filter(
-                    key => extractedTexts.sections[key].length > 0
-                )
-            },
-            originalHtml: processedHTML
+        // Validate URL
+        try {
+            new URL(url);
+        } catch {
+            return res.status(400).json({ error: 'Invalid URL format' });
+        }
+
+        // Generate job ID
+        const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const domain = new URL(url).hostname.replace(/[^a-z0-9]/gi, '_');
+        const outputDir = path.join(__dirname, 'output', `${domain}_${Date.now()}`);
+
+        // Initialize job status
+        scrapingJobs.set(jobId, {
+            id: jobId,
+            url,
+            status: 'starting',
+            progress: 0,
+            pagesScraped: 0,
+            resourcesDownloaded: 0,
+            startedAt: new Date().toISOString(),
+            outputDir,
+            zipPath: null,
+            error: null
         });
 
+        // Send immediate response with job ID
         res.json({
             success: true,
-            templateId,
-            context,
-            sections: Object.keys(extractedTexts.sections).filter(
-                key => extractedTexts.sections[key].length > 0
-            )
+            jobId,
+            message: 'Scraping started'
         });
+
+        // Start scraping in background
+        runScrapingJob(jobId, url, outputDir, maxPages);
+
     } catch (error) {
-        console.error('Scraping error:', error);
+        console.error('Scrape error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Generate a variant (simple approach)
-app.post('/api/generate-variant', async (req, res) => {
+// Get job status
+app.get('/api/jobs/:jobId', (req, res) => {
+    const job = scrapingJobs.get(req.params.jobId);
+    if (!job) {
+        return res.status(404).json({ error: 'Job not found' });
+    }
+    res.json(job);
+});
+
+// List all jobs
+app.get('/api/jobs', (req, res) => {
+    const jobs = Array.from(scrapingJobs.values())
+        .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+    res.json(jobs);
+});
+
+// Download scraped site ZIP
+app.get('/api/download/:jobId', async (req, res) => {
+    const job = scrapingJobs.get(req.params.jobId);
+    if (!job) {
+        return res.status(404).json({ error: 'Job not found' });
+    }
+    if (job.status !== 'completed') {
+        return res.status(400).json({ error: 'Job not completed yet' });
+    }
+    if (!job.zipPath) {
+        return res.status(404).json({ error: 'ZIP file not found' });
+    }
+
     try {
-        const { templateId, language, country, textModel, imageModel, generateImages } = req.body;
-        
-        if (!templateId) {
-            return res.status(400).json({ error: 'templateId is required' });
-        }
-
-        // Get template
-        const templateData = await getTemplate(templateId);
-        if (!templateData) {
-            return res.status(404).json({ error: 'Template not found' });
-        }
-
-        // Generate variant using simple approach (2 API calls only)
-        const variant = await generateSimpleVariant(
-            templateData,
-            language || 'English',
-            country || 'USA',
-            {
-                textModel: textModel || null,
-                imageModel: imageModel || null,
-                generateImages: generateImages || false
-            }
-        );
-
-        // Save variant
-        const variantId = await saveVariant(variant);
-
-        res.json({
-            success: true,
-            variantId,
-            metadata: variant.metadata
-        });
-    } catch (error) {
-        console.error('Variant generation error:', error);
-        res.status(500).json({ error: error.message });
+        await fs.access(job.zipPath);
+        const filename = path.basename(job.zipPath);
+        res.download(job.zipPath, filename);
+    } catch {
+        res.status(404).json({ error: 'ZIP file not found on disk' });
     }
 });
 
-// Get variant HTML
-app.get('/api/variants/:id', async (req, res) => {
+// List scraped sites in output folder
+app.get('/api/sites', async (req, res) => {
     try {
-        const variant = await getVariant(req.params.id);
-        if (!variant) {
-            return res.status(404).json({ error: 'Variant not found' });
-        }
-        res.json(variant);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Download variant as ZIP
-app.get('/api/variants/:id/download', async (req, res) => {
-    try {
-        const variant = await getVariant(req.params.id);
-        if (!variant) {
-            return res.status(404).json({ error: 'Variant not found' });
-        }
-
-        const zipPath = path.join(__dirname, 'variants', `${req.params.id}.zip`);
-        // Use baseUrl from metadata if available
-        const baseUrl = variant.metadata.originalUrl || null;
-        await createVariantZip(variant.html, zipPath, variant.metadata, baseUrl);
-
-        res.download(zipPath, `variant-${req.params.id}.zip`, (err) => {
-            if (err) {
-                console.error('Download error:', err);
-            }
-        });
-    } catch (error) {
-        console.error('ZIP creation error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// List all variants
-app.get('/api/variants', async (req, res) => {
-    try {
-        const variants = await listVariants();
-        res.json(variants);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ========================================
-// Multi-File Cursor API Endpoints (NEW)
-// ========================================
-
-// Get multi-file models list
-app.get('/api/models/multi-file', (req, res) => {
-    res.json(getMultiFileModels());
-});
-
-// Get image generation models list
-app.get('/api/models/image-generation', (req, res) => {
-    res.json(getImageGenerationModels());
-});
-
-// Generate variant using Multi-File Cursor (NEW METHOD)
-app.post('/api/generate-variant-multi', async (req, res) => {
-    try {
-        const {
-            templateId,
-            targetLanguage,
-            targetCountry,
-            writingStyle,
-            targetAudience,
-            additionalInstructions,
-            model,
-            generateImages,
-            imageModel
-        } = req.body;
-
-        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('🚀 Multi-File Cursor - Variant Generation');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`Template: ${templateId}`);
-        console.log(`Language: ${targetLanguage} | Country: ${targetCountry}`);
-        console.log(`Model: ${model || 'claude-sonnet-4'}`);
-        console.log(`Generate Images: ${generateImages || false}`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
-        // Load template
-        const template = await getTemplate(templateId);
-        if (!template) {
-            return res.status(404).json({ error: 'Template not found' });
-        }
-
-        // Create variant directory
-        const variantId = `multi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const variantDir = path.join(__dirname, 'variants', variantId);
-        await fs.mkdir(variantDir, { recursive: true });
-
-        console.log(`📊 Template HTML size: ${(template.originalHtml.length / 1024).toFixed(1)}KB`);
+        const outputDir = path.join(__dirname, 'output');
+        await fs.mkdir(outputDir, { recursive: true });
         
-        // Fallback model chain: user model -> Claude Sonnet 4 -> GPT-4
-        const fallbackModels = [
-            model || 'anthropic/claude-sonnet-4',
-            'anthropic/claude-sonnet-4',
-            'openai/gpt-4o'
-        ];
-        
-        // Remove duplicates and keep order
-        const modelsToTry = [...new Set(fallbackModels)];
-        
-        let result = null;
-        let lastError = null;
-        let attemptCount = 0;
-        
-        for (const currentModel of modelsToTry) {
-            attemptCount++;
-            try {
-                console.log(`\n📍 Attempt ${attemptCount}/${modelsToTry.length}: Trying model ${currentModel}...`);
-                
-                const replacer = new SmartContentReplacer({
-                    model: currentModel,
-                    maxTokens: 8000,
-                    chunkSize: 200  // Process in chunks of 200 items for large content
-                });
-                
-                result = await replacer.processHtml(
-                    template.originalHtml,
-                    {
-                        targetLanguage,
-                        targetCountry,
-                        writingStyle,
-                        targetAudience,
-                        additionalInstructions
-                    }
-                );
-                
-                console.log(`✅ Success with ${currentModel}!`);
-                break; // Success! Exit retry loop
-                
-            } catch (error) {
-                lastError = error;
-                console.error(`❌ Attempt ${attemptCount} failed with ${currentModel}:`, error.message);
-                
-                if (attemptCount < modelsToTry.length) {
-                    console.log(`→ Will retry with next model...`);
-                } else {
-                    console.error(`❌ All ${modelsToTry.length} models failed!`);
+        const items = await fs.readdir(outputDir, { withFileTypes: true });
+        const sites = [];
+
+        for (const item of items) {
+            if (item.isDirectory()) {
+                const indexPath = path.join(outputDir, item.name, 'site-index.json');
+                try {
+                    const indexData = JSON.parse(await fs.readFile(indexPath, 'utf-8'));
+                    sites.push({
+                        folder: item.name,
+                        domain: indexData.domain,
+                        url: indexData.startUrl,
+                        scrapedAt: indexData.scrapedAt,
+                        totalPages: indexData.totalPages,
+                        totalResources: indexData.totalResources,
+                        hasZip: await fileExists(path.join(outputDir, `${item.name}.zip`))
+                    });
+                } catch {
+                    // Skip folders without valid index
                 }
             }
         }
-        
-        // If all attempts failed, throw the last error
-        if (!result) {
-            throw new Error(`All models failed. Last error: ${lastError.message}`);
-        }
-        
-        console.log(`✅ Processing completed successfully`);
 
-        // Save variant HTML
-        await fs.writeFile(
-            path.join(variantDir, 'index.html'),
-            result.html,
-            'utf-8'
-        );
-
-        // Save metadata
-        const metadata = {
-            variantId,
-            templateId,
-            originalUrl: template.url,
-            targetLanguage,
-            targetCountry,
-            writingStyle,
-            targetAudience,
-            model: result.metadata.model,
-            textsProcessed: result.metadata.textsProcessed,
-            replacementsMade: result.metadata.replacementsMade,
-            duration: result.metadata.duration,
-            generatedAt: new Date().toISOString(),
-            method: 'smart-content-replacer'
-        };
-
-        await fs.writeFile(
-            path.join(variantDir, 'metadata.json'),
-            JSON.stringify(metadata, null, 2),
-            'utf-8'
-        );
-
-        console.log('\n✅ Variant created successfully!');
-        console.log(`📁 Variant ID: ${variantId}`);
-        console.log(`⏱️  Duration: ${result.metadata.duration}`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
-        res.json({
-            success: true,
-            variantId,
-            metadata
-        });
-
+        res.json(sites.sort((a, b) => new Date(b.scrapedAt) - new Date(a.scrapedAt)));
     } catch (error) {
-        console.error('❌ Error in Multi-File Cursor:', error);
-        console.error('Error details:', {
-            message: error.message,
-            stack: error.stack?.substring(0, 500)
-        });
-        
-        // Return more detailed error message
-        res.status(500).json({ 
-            error: error.message,
-            details: 'Check server logs for more information. Try using a different model or reducing HTML size.'
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// Serve frontend
+// Delete a scraped site
+app.delete('/api/sites/:folder', async (req, res) => {
+    try {
+        const outputDir = path.join(__dirname, 'output');
+        const folderPath = path.join(outputDir, req.params.folder);
+        const zipPath = folderPath + '.zip';
+
+        await fs.rm(folderPath, { recursive: true, force: true });
+        await fs.rm(zipPath, { force: true }).catch(() => {});
+
+        res.json({ success: true, message: 'Site deleted' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ========================================
+// Helper Functions
+// ========================================
+
+async function runScrapingJob(jobId, url, outputDir, maxPages) {
+    const job = scrapingJobs.get(jobId);
+    
+    try {
+        job.status = 'scraping';
+        
+        const result = await scrapeFullSite(url, outputDir, {
+            maxPages,
+            downloadResources: true,
+            timeout: 60000
+        });
+
+        job.status = 'completed';
+        job.progress = 100;
+        job.pagesScraped = result.pages.length;
+        job.resourcesDownloaded = result.resources.length;
+        job.zipPath = result.zipPath;
+        job.completedAt = new Date().toISOString();
+        job.siteIndex = result.siteIndex;
+
+    } catch (error) {
+        console.error(`Job ${jobId} failed:`, error);
+        job.status = 'failed';
+        job.error = error.message;
+        job.completedAt = new Date().toISOString();
+    }
+}
+
+async function fileExists(filePath) {
+    try {
+        await fs.access(filePath);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// ========================================
+// Serve Frontend
+// ========================================
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -517,8 +229,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
-    console.log(`Access via: http://YOUR_SERVER_IP:${PORT}`);
+    console.log(`\n🕷️  Web Scraper Pro running on http://localhost:${PORT}`);
+    console.log(`📁 Output directory: ${path.join(__dirname, 'output')}\n`);
 });
-
-
